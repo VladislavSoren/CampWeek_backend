@@ -3,6 +3,7 @@ __all__ = (
     "DatabaseHelper",
     "db_helper",
     "User",
+    "Region",
     # "Event",
 )
 
@@ -13,3 +14,4 @@ from .base import Base
 # from .user import Auto
 from .db_helper import DatabaseHelper, db_helper
 from .user import User
+from .region import Region
