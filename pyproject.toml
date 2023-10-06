@@ -1,0 +1,15 @@
+[tool.black]
+line-length = 127
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+(
+  venv/
+)
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+py_version = 311
+extend_skip  = ["__init__.py"]
