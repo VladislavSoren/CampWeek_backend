@@ -11,9 +11,9 @@ username: No
 first_name: string
 last_name: string
 sex: 1 — женский; 2 — мужской; 0 — пол не указан
-city:
+city: object - {'id': 39, 'title': 'Владимир'}
+bdate: string - '14.9.1970'
 
-bdate:
 """
 
 
@@ -31,17 +31,29 @@ class User(Base):
 
     # relationships
     region = relationship("Region", back_populates="user")
-    # event_creator = relationship("Event", back_populates="creator")
-    # event_speaker = relationship("Event", back_populates="speaker")
+    admin = relationship("Admin", back_populates="user")
+    creator = relationship("Creator", back_populates="user")
+    speaker = relationship("Speaker", back_populates="user")
 
 
-# class Admin(Base):
-#     user: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
-#
-#
-# class Creator(Base):
-#     user: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
-#
-#
-# class Speaker(Base):
-#     user: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+class Admin(Base):
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+
+    # relationships
+    user = relationship("User", back_populates="admin")
+
+
+class Creator(Base):
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+
+    # relationships
+    user = relationship("User", back_populates="creator")
+    event = relationship("Event", back_populates="creator")
+
+
+class Speaker(Base):
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+
+    # relationships
+    user = relationship("User", back_populates="speaker")
+    event = relationship("Event", back_populates="speaker")

@@ -3,6 +3,9 @@ __all__ = (
     "DatabaseHelper",
     "db_helper",
     "User",
+    "Admin",
+    "Creator",
+    "Speaker",
     "Region",
     # "Event",
 )
@@ -11,7 +14,9 @@ __all__ = (
 # all __init__.py files skipped for "isort" validator
 from .base import Base
 
-# from .user import Auto
 from .db_helper import DatabaseHelper, db_helper
-from .user import User
+from .user import User, Admin, Creator, Speaker
+
 from .region import Region
+
+# from .event import Event
