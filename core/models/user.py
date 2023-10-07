@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Date, ForeignKey, String
+import datetime
+
+from sqlalchemy import BigInteger, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -14,18 +16,19 @@ sex: 1 — женский; 2 — мужской; 0 — пол не указан
 city: object - {'id': 39, 'title': 'Владимир'}
 bdate: string - '14.9.1970'
 
+Дополнительная валидация полей будет на схемах
 """
 
 
 class User(Base):
-    vk_id: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    vk_id: Mapped[int] = mapped_column(BigInteger(), nullable=False, unique=True)
 
     first_name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
 
-    sex: Mapped[str] = mapped_column(Boolean(), nullable=True, unique=False)
+    sex: Mapped[int] = mapped_column(Integer(), nullable=True, unique=False)
     city: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
-    bdate: Mapped[str] = mapped_column(Date(), nullable=True, unique=False)
+    bdate: Mapped[datetime.date] = mapped_column(Date(), nullable=True, unique=False)
 
     region_id: Mapped[int] = mapped_column(ForeignKey("region.id"))
 
