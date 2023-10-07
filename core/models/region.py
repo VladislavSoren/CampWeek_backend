@@ -9,3 +9,4 @@ class Region(Base):
 
     # relationships
     user = relationship("User", back_populates="region")
+    event = relationship("Event", back_populates="region")

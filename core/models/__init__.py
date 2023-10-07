@@ -7,7 +7,7 @@ __all__ = (
     "Creator",
     "Speaker",
     "Region",
-    # "Event",
+    "Event",
 )
 
 # Base import must be first (to escape ImportError: circular import)
@@ -16,7 +16,5 @@ from .base import Base
 
 from .db_helper import DatabaseHelper, db_helper
 from .user import User, Admin, Creator, Speaker
-
 from .region import Region
-
-# from .event import Event
+from .event import Event
