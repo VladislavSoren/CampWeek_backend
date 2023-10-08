@@ -14,7 +14,7 @@
 
 
 ### Инструкции по запуску:
-1. `cd <Абсолютный путь к директории CarPark_FastAPI>`
+1. `cd <Абсолютный путь к директории CampWeek_backend>`
 2.  `docker compose -f docker-compose.dev.yml run --name campweek_backend_api --service-ports -d app`
 * Полезные команды находятся в `instructions/docker.txt`
 
