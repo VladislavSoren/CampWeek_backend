@@ -30,7 +30,7 @@ class User(Base):
     city: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     bdate: Mapped[datetime.date] = mapped_column(Date(), nullable=True, unique=False)
 
-    region_id: Mapped[int] = mapped_column(ForeignKey("region.id"))
+    region_id: Mapped[int] = mapped_column(ForeignKey("region.id"), nullable=True)
 
     # relationships
     region = relationship("Region", back_populates="user")
