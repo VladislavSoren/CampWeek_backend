@@ -30,5 +30,3 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${DB_PORT_OUT}:${DB_PORT}"
-
-# docker compose -f docker-compose.dev.yml run app
