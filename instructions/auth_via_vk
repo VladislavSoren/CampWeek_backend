@@ -9,3 +9,6 @@ https://dev.vk.com/ru/api/access-token/authcode-flow-user
 
 Список городов:
 https://dev.vk.com/ru/method/database.getCities
+
+VK.com (former Vkontakte):
+https://python-social-auth.readthedocs.io/en/latest/backends/vk.html

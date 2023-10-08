@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+#    restart: "always"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - pg
+    environment:
+      CONFIG_CLASS: DevelopmentConfigDocker
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: pg
+      DB_PORT: ${DB_PORT}
+  #      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@pg:${DB_PORT}/${DB_NAME}
+    ports:
+      - "8080:8000"
+
+  pg:
+    image: postgres
+#    restart: "always"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT_OUT}:${DB_PORT}"
+
+# docker compose -f docker-compose.dev.yml run app
