@@ -1,0 +1,11 @@
+Open API:
+https://vk.com/dev/openapi
+
+Диалог авторизации OAuth:
+https://dev.vk.com/ru/api/oauth-parameters
+
+Authorization Code Flow для получения ключа доступа пользователя:
+https://dev.vk.com/ru/api/access-token/authcode-flow-user
+
+Список городов:
+https://dev.vk.com/ru/method/database.getCities
