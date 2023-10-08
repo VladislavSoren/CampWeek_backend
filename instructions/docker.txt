@@ -4,4 +4,8 @@ https://github.com/docker/compose/issues/4799
 docker compose run:
 https://docs.docker.com/engine/reference/commandline/compose_run/
 
-docker compose -f docker-compose.dev.yml run --service-ports app
+docker compose -f docker-compose.dev.yml run --name campweek_backend_api --service-ports -d app
+
+docker start campweek_backend_api
+
+docker stop campweek_backend_api

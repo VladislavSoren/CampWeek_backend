@@ -5,6 +5,7 @@ include = '\.pyi?$'
 exclude = '''
 (
   venv/
+  requirements.txt
 )
 '''
 

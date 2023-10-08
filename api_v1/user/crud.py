@@ -1,4 +1,5 @@
 # from sqlalchemy import Result, select
+from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.user.schemas import UserCreate
@@ -15,19 +16,17 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> User:
     return user
 
 
-#
-#
-# async def get_autos(session: AsyncSession) -> list[Auto]:
-#     stmt = select(Auto).order_by(Auto.id)
-#     result: Result = await session.execute(stmt)
-#     autos = result.scalars().all()
-#     return list(autos)
-#
-#
-# async def get_auto(session: AsyncSession, auto_id) -> Auto | None:
-#     return await session.get(Auto, auto_id)
-#
-#
+async def get_users(session: AsyncSession) -> list[User]:
+    stmt = select(User).order_by(User.id)
+    result: Result = await session.execute(stmt)
+    users = result.scalars().all()
+    return list(users)
+
+
+async def get_user(session: AsyncSession, user_id) -> User | None:
+    return await session.get(User, user_id)
+
+
 # async def get_all_auto_drivers(session: AsyncSession, auto_id) -> list[Driver]:
 #     stmt = select(Auto).options(selectinload(Auto.driver)).where(Auto.id == auto_id)
 #     result: Result = await session.execute(stmt)
