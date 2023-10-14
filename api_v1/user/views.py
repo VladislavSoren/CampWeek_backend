@@ -8,7 +8,7 @@ from starlette.responses import RedirectResponse
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate
-from core.config import settings
+from core.config import FRONTEND_URL, settings
 from core.models import db_helper
 
 router = APIRouter(
@@ -56,7 +56,7 @@ async def vk_auth_callback(
     date_string = vk_user_info.get("bdate")
     parsed_date = datetime.datetime.strptime(date_string, "%d.%m.%Y")
 
-    user = UserCreate(
+    _ = UserCreate(
         vk_id=vk_user_info["id"],
         first_name=vk_user_info["first_name"],
         last_name=vk_user_info["last_name"],
@@ -64,9 +64,10 @@ async def vk_auth_callback(
         city=vk_user_info.get("city")["title"],  #
         bdate=parsed_date,
     )
-    new_user = await crud.create_user(session=session, user_in=user)
+    # new_user = await crud.create_user(session=session, user_in=user)
 
-    return new_user
+    account_page = FRONTEND_URL + "/account"
+    return RedirectResponse(account_page)
 
 
 @router.get("/", response_model=list[User])
