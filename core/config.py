@@ -18,9 +18,14 @@ DB_PORT_OUT = os.getenv("DB_PORT_OUT")
 SOCIAL_AUTH_VK_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_VK_OAUTH2_KEY")
 SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_VK_OAUTH2_SECRET")
 VK_API_VERSION = os.getenv("VK_API_VERSION")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 
 class Config(BaseSettings):
+    origins: list = [
+        FRONTEND_URL,
+    ]
+
     api_v1_prefix: str = "/api/v1"
 
     # for form auth URL
