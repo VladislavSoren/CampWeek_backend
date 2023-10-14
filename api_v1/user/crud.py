@@ -1,5 +1,6 @@
 # from sqlalchemy import Result, select
 from sqlalchemy import Result, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.user.schemas import UserCreate
@@ -8,12 +9,23 @@ from core.models import User
 # from sqlalchemy.orm import selectinload
 
 
-async def create_user(session: AsyncSession, user_in: UserCreate) -> User:
+class ExistStatus:
+    EXISTS = "exists"
+    NEW = "new"
+
+
+async def create_user(session: AsyncSession, user_in: UserCreate) -> str:
     user = User(**user_in.model_dump())
     session.add(user)
-    await session.commit()
+
+    try:
+        await session.commit()
+    except IntegrityError as e:
+        if "UniqueViolationError" in e.args[0]:
+            return ExistStatus.EXISTS
+
     # await session.refresh(product)
-    return user
+    return ExistStatus.NEW
 
 
 async def get_users(session: AsyncSession) -> list[User]:

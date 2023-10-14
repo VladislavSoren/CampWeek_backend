@@ -1,7 +1,7 @@
 import datetime
 
 import requests
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, Response, status
 
 # from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +10,7 @@ from starlette.responses import RedirectResponse
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate
-from core.config import FRONTEND_URL, settings
+from core.config import settings
 from core.models import db_helper
 
 router = APIRouter(
@@ -28,7 +28,7 @@ async def vk_auth_start(request: Request):
     return RedirectResponse(vk_auth_url)
 
 
-@router.get("/vk_auth_callback/", response_model=User)
+@router.get("/vk_auth_callback/", response_class=RedirectResponse)
 async def vk_auth_callback(
     request: Request,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -41,8 +41,8 @@ async def vk_auth_callback(
     # получаем токен доступа
     redirect_uri_with_code = str(request.url).replace("?code", "&code")
     access_token_url = settings.access_token_url + f"&redirect_uri={redirect_uri_with_code}"
-    response = requests.get(access_token_url)
-    access_token_data = response.json()
+    response_token = requests.get(access_token_url)
+    access_token_data = response_token.json()
 
     if "access_token" not in access_token_data:
         return {"message": "Access token not provided"}
@@ -69,16 +69,40 @@ async def vk_auth_callback(
         city=vk_user_info.get("city")["title"],  #
         bdate=parsed_date,
     )
-    _ = await crud.create_user(session=session, user_in=user)
 
-    account_page = FRONTEND_URL + "/account"
-    return RedirectResponse(account_page)
+    # creating user
+    exist_status = await crud.create_user(session=session, user_in=user)
+
+    # set redirect response
+    # account_page = FRONTEND_URL + "/account"
+    response = RedirectResponse(url="/")
+
+    # add cookie in response
+    response.set_cookie(key="fakesession", value=exist_status)
+
+    return response
+
+
+# work!
+@router.get("/cookieset", response_class=RedirectResponse)
+def cookie_set2() -> RedirectResponse:
+    # response = RedirectResponse(url="/")
+    # response.set_cookie(key="works", value="here is your data", domain="127.0.0.1:8080")
+    # return response
+    token = "123123123"
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(key="token", value=token)
+    return response
 
 
 @router.get("/", response_model=list[User])
 async def get_users(
+    response: Response,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
+    # add cookie in response
+    response.set_cookie(key="fakesession", value="fake-cookie-session-value")
+
     return await crud.get_users(session=session)
 
 
