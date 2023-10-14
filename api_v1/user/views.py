@@ -2,6 +2,8 @@ import datetime
 
 import requests
 from fastapi import APIRouter, Depends, Request, status
+
+# from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
 
@@ -14,6 +16,9 @@ from core.models import db_helper
 router = APIRouter(
     tags=["User"],
 )
+
+
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8080")
 
 
 @router.get("/vk_auth_start/", status_code=status.HTTP_200_OK)
@@ -56,7 +61,7 @@ async def vk_auth_callback(
     date_string = vk_user_info.get("bdate")
     parsed_date = datetime.datetime.strptime(date_string, "%d.%m.%Y")
 
-    _ = UserCreate(
+    user = UserCreate(
         vk_id=vk_user_info["id"],
         first_name=vk_user_info["first_name"],
         last_name=vk_user_info["last_name"],
@@ -64,7 +69,7 @@ async def vk_auth_callback(
         city=vk_user_info.get("city")["title"],  #
         bdate=parsed_date,
     )
-    # new_user = await crud.create_user(session=session, user_in=user)
+    _ = await crud.create_user(session=session, user_in=user)
 
     account_page = FRONTEND_URL + "/account"
     return RedirectResponse(account_page)
@@ -80,7 +85,9 @@ async def get_users(
 @router.get("/{user_id}/", response_model=User)
 async def get_user(
     user: User = Depends(user_by_id),
+    # token: str = Depends(oauth2_scheme)
 ):
+    # token
     return user
 
 
