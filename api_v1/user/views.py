@@ -1,7 +1,7 @@
 import datetime
 
 import requests
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, Request, status
 
 # from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +24,6 @@ router = APIRouter(
 async def vk_auth_start(request: Request):
     callback_url = str(request.url).replace("vk_auth_start", "vk_auth_callback")
     vk_auth_url = settings.vk_auth_url + f"&redirect_uri={callback_url}"
-    vk_auth_url = vk_auth_url.replace("localhost", "127.0.0.1")
     return RedirectResponse(vk_auth_url)
 
 
@@ -41,7 +40,6 @@ async def vk_auth_callback(
     # получаем токен доступа
     redirect_uri_with_code = str(request.url).replace("?code", "&code")
     access_token_url = settings.access_token_url + f"&redirect_uri={redirect_uri_with_code}"
-    access_token_url = access_token_url.replace("localhost", "127.0.0.1")
     response_token = requests.get(access_token_url)
     access_token_data = response_token.json()
 
@@ -51,7 +49,6 @@ async def vk_auth_callback(
     # делаем запрос для получания данных юзера
     fields = "&fields=sex,city,bdate"
     user_info_url = settings.user_info_request_url + f"&access_token={access_token_data['access_token']}{fields}"
-    user_info_url = user_info_url.replace("localhost", "127.0.0.1")
     user_info_response = requests.get(user_info_url)
     user_info_data = user_info_response.json()
 
@@ -88,9 +85,6 @@ async def vk_auth_callback(
 # work!
 @router.get("/cookieset", response_class=RedirectResponse)
 def cookie_set2() -> RedirectResponse:
-    # response = RedirectResponse(url="/")
-    # response.set_cookie(key="works", value="here is your data", domain="127.0.0.1:8080")
-    # return response
     token = "fake_token"
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(key="token", value=token)
@@ -99,12 +93,9 @@ def cookie_set2() -> RedirectResponse:
 
 @router.get("/", response_model=list[User])
 async def get_users(
-    response: Response,
+    request: Request,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    # add cookie in response
-    response.set_cookie(key="fakesession", value="fake-cookie-session-value")
-
     return await crud.get_users(session=session)
 
 
