@@ -72,12 +72,15 @@ async def vk_auth_callback(
     # creating user
     _ = await crud.create_user(session=session, user_in=user)
 
+    # get created user
+    created_user = await crud.get_user_by_vk_id(session=session, user_vk_id=vk_user_info["id"])
+
     # set redirect response
     response = RedirectResponse(url=settings.ACCOUNT_PAGE_URL, status_code=status.HTTP_303_SEE_OTHER)
 
     # add cookie in response
-    response.set_cookie(key="access_token", value=create_access_token(user.vk_id))
-    response.set_cookie(key="refresh_token", value=create_refresh_token(user.vk_id))
+    response.set_cookie(key="access_token", value=create_access_token(created_user.id))
+    response.set_cookie(key="refresh_token", value=create_refresh_token(created_user.id))
 
     return response
 
