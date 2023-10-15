@@ -44,9 +44,12 @@ class Config(BaseSettings):
     user_prefix: str = "/user"
 
     # JWT
-    ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 5
-    REFRESH_TOKEN_EXPIRE_MINUTES = 60
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60
+
+    # pages urls
+    ACCOUNT_PAGE_URL: str = "/"
 
 
 class DevelopmentConfigLocal(Config):
@@ -57,9 +60,15 @@ class DevelopmentConfigDocker(Config):
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@pg:{PORT}/{DB_NAME}"
 
 
+class ProductionConfigDocker(DevelopmentConfigDocker):
+    ACCOUNT_PAGE_URL: str = FRONTEND_URL + "/account"
+
+
 config_class_name = os.getenv("CONFIG_CLASS", "DevelopmentConfigLocal")
 if config_class_name == "DevelopmentConfigDocker":
     CONFIG_OBJECT = DevelopmentConfigDocker
+elif config_class_name == "ProductionConfigDocker":
+    CONFIG_OBJECT = ProductionConfigDocker
 else:
     CONFIG_OBJECT = DevelopmentConfigLocal
 

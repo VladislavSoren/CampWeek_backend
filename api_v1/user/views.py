@@ -10,15 +10,14 @@ from starlette.responses import RedirectResponse
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate
+from api_v1.user.utils import create_access_token, create_refresh_token
 from core.config import settings
 from core.models import db_helper
 
+# router
 router = APIRouter(
     tags=["User"],
 )
-
-
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8080")
 
 
 @router.get("/vk_auth_start/", status_code=status.HTTP_200_OK)
@@ -66,19 +65,19 @@ async def vk_auth_callback(
         first_name=vk_user_info["first_name"],
         last_name=vk_user_info["last_name"],
         sex=vk_user_info.get("sex"),
-        city=vk_user_info.get("city")["title"],  #
+        city=vk_user_info.get("city")["title"],
         bdate=parsed_date,
     )
 
     # creating user
-    exist_status = await crud.create_user(session=session, user_in=user)
+    _ = await crud.create_user(session=session, user_in=user)
 
     # set redirect response
-    # account_page = FRONTEND_URL + "/account"
-    response = RedirectResponse(url="/")
+    response = RedirectResponse(url=settings.ACCOUNT_PAGE_URL, status_code=status.HTTP_303_SEE_OTHER)
 
     # add cookie in response
-    response.set_cookie(key="fakesession", value=exist_status)
+    response.set_cookie(key="access_token", value=create_access_token(user.vk_id))
+    response.set_cookie(key="refresh_token", value=create_refresh_token(user.vk_id))
 
     return response
 
@@ -89,7 +88,7 @@ def cookie_set2() -> RedirectResponse:
     # response = RedirectResponse(url="/")
     # response.set_cookie(key="works", value="here is your data", domain="127.0.0.1:8080")
     # return response
-    token = "123123123"
+    token = "fake_token"
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(key="token", value=token)
     return response
