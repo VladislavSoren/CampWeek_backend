@@ -20,6 +20,10 @@ SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_VK_OAUTH2_SECRET")
 VK_API_VERSION = os.getenv("VK_API_VERSION")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
+# JWT
+SECRET_KEY_JWT = os.getenv("SECRET_KEY_JWT")
+REFRESH_SECRET_KEY_JWT = os.getenv("REFRESH_SECRET_KEY_JWT")
+
 
 class Config(BaseSettings):
     origins: list = [
@@ -38,6 +42,11 @@ class Config(BaseSettings):
 
     # router prefixes
     user_prefix: str = "/user"
+
+    # JWT
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 5
+    REFRESH_TOKEN_EXPIRE_MINUTES = 60
 
 
 class DevelopmentConfigLocal(Config):
