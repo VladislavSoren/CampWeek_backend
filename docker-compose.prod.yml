@@ -10,7 +10,7 @@ services:
     depends_on:
       - pg
     environment:
-      CONFIG_CLASS: DevelopmentConfigDocker
+      CONFIG_CLASS: ProdConfig
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -18,7 +18,7 @@ services:
       DB_PORT: ${DB_PORT}
   #      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@pg:${DB_PORT}/${DB_NAME}
     ports:
-      - "5777:8000"
+      - "5777:8000" # "8080:8000"
 
   pg:
     image: postgres
@@ -30,3 +30,5 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${DB_PORT_OUT}:${DB_PORT}"
+
+# docker compose -f docker-compose.prod.yml run --name campweek_backend_api --service-ports app
