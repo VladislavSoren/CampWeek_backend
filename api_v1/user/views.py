@@ -1,7 +1,7 @@
 import datetime
 
 import requests
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, Response
 
 # from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,6 +30,7 @@ async def vk_auth_start(request: Request):
 @router.get("/vk_auth_callback/", response_class=RedirectResponse)
 async def vk_auth_callback(
     request: Request,
+    response: Response,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     code_str = request.query_params  # 'code=77988c5befef82f190'
