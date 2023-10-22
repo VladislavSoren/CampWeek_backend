@@ -23,6 +23,10 @@ VK_API_VERSION = os.getenv("VK_API_VERSION")
 FRONTEND_URL_LOCAL = os.getenv("FRONTEND_URL_LOCAL")
 FRONTEND_URL_PROD = os.getenv("FRONTEND_URL_PROD")
 
+# JWT
+SECRET_KEY_JWT = os.getenv("SECRET_KEY_JWT")
+REFRESH_SECRET_KEY_JWT = os.getenv("REFRESH_SECRET_KEY_JWT")
+
 
 class Config(BaseSettings):
     origins: list = [
@@ -47,6 +51,14 @@ class Config(BaseSettings):
     # router prefixes
     user_prefix: str = "/user"
 
+    # JWT
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60
+
+    # pages urls
+    ACCOUNT_PAGE_URL: str = "/"
+
 
 class DevelopmentConfigLocal(Config):
     pass
@@ -67,9 +79,15 @@ class ProdConfig(Config):
     user_info_request_url: str = f"https://api.vk.com/method/users.get?v={VK_API_VERSION}"
 
 
+class ProductionConfigDocker(DevelopmentConfigDocker):
+    ACCOUNT_PAGE_URL: str = FRONTEND_URL + "/account"
+
+
 config_class_name = os.getenv("CONFIG_CLASS", "DevelopmentConfigLocal")
 if config_class_name == "DevelopmentConfigDocker":
     CONFIG_OBJECT = DevelopmentConfigDocker
+elif config_class_name == "ProductionConfigDocker":
+    CONFIG_OBJECT = ProductionConfigDocker
 elif config_class_name == "ProdConfig":
     CONFIG_OBJECT = ProdConfig
 else:

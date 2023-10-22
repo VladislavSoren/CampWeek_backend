@@ -21,9 +21,11 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> str:
     try:
         await session.commit()
     except IntegrityError as e:
+        await session.rollback()
         if "UniqueViolationError" in e.args[0]:
             return ExistStatus.EXISTS
-
+    finally:
+        await session.close()
     # await session.refresh(product)
     return ExistStatus.NEW
 
@@ -37,6 +39,13 @@ async def get_users(session: AsyncSession) -> list[User]:
 
 async def get_user(session: AsyncSession, user_id) -> User | None:
     return await session.get(User, user_id)
+
+
+async def get_user_by_vk_id(session: AsyncSession, user_vk_id) -> User | None:
+    stmt = select(User).where(User.vk_id == user_vk_id)
+    result: Result = await session.execute(stmt)
+    user = result.scalars().one()
+    return user
 
 
 # async def get_all_auto_drivers(session: AsyncSession, auto_id) -> list[Driver]:
