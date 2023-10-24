@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserBase(BaseModel):
-    vk_id: int = Field(ge=0)
+    vk_id: str = Field(max_length=100)
     first_name: str = Field(max_length=100)
     last_name: str = Field(max_length=100)
     sex: int = Field(ge=0, le=2)

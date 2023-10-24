@@ -59,14 +59,23 @@ async def vk_auth_callback(
     vk_user_info = user_info_data["response"][0]
 
     date_string = vk_user_info.get("bdate")
-    parsed_date = datetime.datetime.strptime(date_string, "%d.%m.%Y")
+    if date_string:
+        parsed_date = datetime.datetime.strptime(date_string, "%d.%m.%Y")
+    else:
+        parsed_date = None
+
+    city = None
+    if vk_user_info.get("city") is not None:
+        city = vk_user_info.get("city")["title"]
+
+    vk_id = str(vk_user_info["id"])
 
     user = UserCreate(
-        vk_id=vk_user_info["id"],
+        vk_id=vk_id,
         first_name=vk_user_info["first_name"],
         last_name=vk_user_info["last_name"],
         sex=vk_user_info.get("sex"),
-        city=vk_user_info.get("city")["title"],
+        city=city,
         bdate=parsed_date,
     )
 
@@ -74,7 +83,7 @@ async def vk_auth_callback(
     _ = await crud.create_user(session=session, user_in=user)
 
     # get created user
-    created_user = await crud.get_user_by_vk_id(session=session, user_vk_id=vk_user_info["id"])
+    created_user = await crud.get_user_by_vk_id(session=session, user_vk_id=vk_id)
 
     # set redirect response
     response = RedirectResponse(url=settings.ACCOUNT_PAGE_URL, status_code=status.HTTP_303_SEE_OTHER)

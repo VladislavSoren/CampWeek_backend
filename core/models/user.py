@@ -21,7 +21,7 @@ bdate: string - '14.9.1970'
 
 
 class User(Base):
-    vk_id: Mapped[int] = mapped_column(BigInteger(), nullable=False, unique=True)
+    vk_id: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
 
     first_name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
