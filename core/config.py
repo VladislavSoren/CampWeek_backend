@@ -26,6 +26,7 @@ FRONTEND_URL_PROD = os.getenv("FRONTEND_URL_PROD")
 # JWT
 SECRET_KEY_JWT = os.getenv("SECRET_KEY_JWT")
 REFRESH_SECRET_KEY_JWT = os.getenv("REFRESH_SECRET_KEY_JWT")
+PROTOCOL = "http://"
 
 
 class Config(BaseSettings):
@@ -69,7 +70,6 @@ class DevelopmentConfigDocker(Config):
 
 
 class ProdConfigLocal(Config):
-
     # for form auth URL
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{DB_PORT_OUT}/{DB_NAME}"
     DB_ECHO: bool = True
@@ -78,11 +78,10 @@ class ProdConfigLocal(Config):
     access_token_url: str = f"https://oauth.vk.com/access_token?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY_PROD}&client_secret={SOCIAL_AUTH_VK_OAUTH2_SECRET_PROD}&response_type=code&v={VK_API_VERSION}"
     user_info_request_url: str = f"https://api.vk.com/method/users.get?v={VK_API_VERSION}"
 
-    ACCOUNT_PAGE_URL: str = FRONTEND_URL_PROD + "/account"
+    ACCOUNT_PAGE_URL: str = PROTOCOL + FRONTEND_URL_PROD + "/account"
 
 
 class ProdConfigDocker(Config):
-
     # for form auth URL
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@pg:{PORT}/{DB_NAME}"
     DB_ECHO: bool = True
@@ -91,7 +90,7 @@ class ProdConfigDocker(Config):
     access_token_url: str = f"https://oauth.vk.com/access_token?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY_PROD}&client_secret={SOCIAL_AUTH_VK_OAUTH2_SECRET_PROD}&response_type=code&v={VK_API_VERSION}"
     user_info_request_url: str = f"https://api.vk.com/method/users.get?v={VK_API_VERSION}"
 
-    ACCOUNT_PAGE_URL: str = FRONTEND_URL_PROD + "/account"
+    ACCOUNT_PAGE_URL: str = PROTOCOL + FRONTEND_URL_PROD + "/account"
 
 
 config_class_name = os.getenv("CONFIG_CLASS", "DevelopmentConfigLocal")
