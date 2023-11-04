@@ -11,6 +11,7 @@ class UserBase(BaseModel):
     city: str | None = Field(max_length=100)
     bdate: datetime.date | None
     region_id: int | None = Field(ge=0, default=None)
+    archived: bool | None
 
 
 class UserCreate(UserBase):
@@ -25,6 +26,7 @@ class UserUpdatePartial(UserBase):
     city: str | None = None
     bdate: datetime.date | None = None
     region_id: int | None = None
+    archived: bool | None = None
 
 
 class User(UserBase):

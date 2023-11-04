@@ -1,7 +1,9 @@
 import datetime
+from typing import Annotated
 
 import requests
 from fastapi import APIRouter, Depends, Request, status, Response
+from fastapi.params import Path
 
 # from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -135,6 +137,17 @@ async def update_user_partial(
     )
 
 
+@router.delete("/{user_id}/", response_model=User)
+async def archive_user(
+    user_id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await crud.archive_user(
+        user_id=user_id,
+        session=session,
+    )
+
+    return await user_by_id(user_id, session)
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
 # async def get_all_auto_drivers(
