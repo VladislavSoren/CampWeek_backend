@@ -125,9 +125,9 @@ async def get_user(
 
 @router.patch("/{user_id}/", response_model=User)
 async def update_user_partial(
-    user_update: UserUpdatePartial,
-    user: User = Depends(user_by_id),
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+        user_update: UserUpdatePartial,
+        user: User = Depends(user_by_id),
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.update_user(
         user_update=user_update,
@@ -137,10 +137,23 @@ async def update_user_partial(
     )
 
 
+@router.patch("/{user_id}/restore/", response_model=User)
+async def archive_user(
+        user_id: Annotated[int, Path],
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await crud.restore_user(
+        user_id=user_id,
+        session=session,
+    )
+
+    return await user_by_id(user_id, session)
+
+
 @router.delete("/{user_id}/", response_model=User)
 async def archive_user(
-    user_id: Annotated[int, Path],
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+        user_id: Annotated[int, Path],
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     await crud.archive_user(
         user_id=user_id,

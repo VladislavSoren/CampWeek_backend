@@ -66,13 +66,15 @@ async def update_user(
 
 
 async def archive_user(session: AsyncSession, user_id):
-    # stmt = update(User).where(User.vk_id == user_vk_id).values({"archived": True})
     stmt = update(User).where(User.id == user_id).values(archived=True)
     await session.execute(stmt)
     await session.commit()
 
 
-
+async def restore_user(session: AsyncSession, user_id):
+    stmt = update(User).where(User.id == user_id).values(archived=False)
+    await session.execute(stmt)
+    await session.commit()
 
 # async def get_all_auto_drivers(session: AsyncSession, auto_id) -> list[Driver]:
 #     stmt = select(Auto).options(selectinload(Auto.driver)).where(Auto.id == auto_id)
