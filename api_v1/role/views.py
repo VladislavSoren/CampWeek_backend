@@ -1,8 +1,6 @@
-import datetime
 from typing import Annotated
 
-import requests
-from fastapi import APIRouter, Depends, Request, status, Response
+from fastapi import APIRouter, Depends, status
 from fastapi.params import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession

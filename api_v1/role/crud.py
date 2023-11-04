@@ -53,8 +53,7 @@ async def update_role(
 ) -> Role | None:
     # обновляем атрибуты
     for name, value in role_update.model_dump(exclude_unset=partial).items():
-        if name != "vk_id":
-            setattr(role, name, value)
+        setattr(role, name, value)
     await session.commit()
 
     return role
