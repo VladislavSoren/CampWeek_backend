@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import BigInteger, Date, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Date, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -36,19 +36,3 @@ class User(Base):
     # relationships
     region = relationship("Region", back_populates="user")
     role = relationship("UserRole", back_populates="user")
-
-
-class Role(Base):
-    name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
-
-    # relationships
-    user = relationship("UserRole", back_populates="role")
-
-
-class UserRole(Base):
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
-    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), nullable=True)
-
-    # relationships
-    user = relationship("User", back_populates="role")
-    role = relationship("Role", back_populates="user")

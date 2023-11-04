@@ -51,6 +51,7 @@ class Config(BaseSettings):
 
     # router prefixes
     user_prefix: str = "/user"
+    role_prefix: str = "/role"
 
     # JWT
     ALGORITHM: str = "HS256"

@@ -14,6 +14,7 @@ __all__ = (
 from .base import Base
 
 from .db_helper import DatabaseHelper, db_helper
-from .user import User, Role, UserRole
+from .user import User
+from .role import Role, UserRole
 from .region import Region
 from .event import Event
