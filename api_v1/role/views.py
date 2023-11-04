@@ -28,10 +28,16 @@ async def create_role(
 
 @router.get("/", response_model=list[Role])
 async def get_roles(
-        request: Request,
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.get_roles(session=session)
+
+
+@router.get("/all/", response_model=list[Role])
+async def get_all_roles(
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.get_all_roles(session=session)
 
 
 @router.get("/{role_id}/", response_model=Role)

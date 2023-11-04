@@ -108,10 +108,16 @@ def cookie_set2() -> RedirectResponse:
 
 @router.get("/", response_model=list[User])
 async def get_users(
-        request: Request,
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.get_users(session=session)
+
+
+@router.get("/all/", response_model=list[User])
+async def get_all_users(
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.get_all_users(session=session)
 
 
 @router.get("/{user_id}/", response_model=User)
@@ -150,7 +156,7 @@ async def archive_user(
     return await user_by_id(user_id, session)
 
 
-@router.delete("/{user_id}/", response_model=User)
+@router.delete("/{user_id}/", response_model=dict)
 async def archive_user(
         user_id: Annotated[int, Path],
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -159,8 +165,9 @@ async def archive_user(
         user_id=user_id,
         session=session,
     )
+    return {"msg": f"User {user_id} was archived!"}
+    # return await user_by_id(user_id, session)
 
-    return await user_by_id(user_id, session)
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
 # async def get_all_auto_drivers(

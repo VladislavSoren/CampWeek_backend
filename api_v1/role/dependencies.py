@@ -14,7 +14,13 @@ async def role_by_id(
 ) -> Role:
     role = await crud.get_role(session=session, role_id=role_id)
     if role is not None:
-        return role
+        if role.archived is False:
+            return role
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Role {role_id} was archived!",
+            )
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

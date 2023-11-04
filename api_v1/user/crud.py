@@ -31,8 +31,15 @@ async def create_user(session: AsyncSession, user_in: UserCreate) -> str:
     return ExistStatus.NEW
 
 
-async def get_users(session: AsyncSession) -> list[User]:
+async def get_all_users(session: AsyncSession) -> list[User]:
     stmt = select(User).order_by(User.id)
+    result: Result = await session.execute(stmt)
+    users = result.scalars().all()
+    return list(users)
+
+
+async def get_users(session: AsyncSession) -> list[User]:
+    stmt = select(User).order_by(User.id).where(User.archived.is_(False))
     result: Result = await session.execute(stmt)
     users = result.scalars().all()
     return list(users)
@@ -74,4 +81,3 @@ async def restore_user(session: AsyncSession, user_id):
     stmt = update(User).where(User.id == user_id).values(archived=False)
     await session.execute(stmt)
     await session.commit()
-

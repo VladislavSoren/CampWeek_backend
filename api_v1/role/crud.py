@@ -27,8 +27,15 @@ async def create_role(session: AsyncSession, role_in: RoleCreate) -> Role | str:
     return role
 
 
-async def get_roles(session: AsyncSession) -> list[Role]:
+async def get_all_roles(session: AsyncSession) -> list[Role]:
     stmt = select(Role).order_by(Role.id)
+    result: Result = await session.execute(stmt)
+    roles = result.scalars().all()
+    return list(roles)
+
+
+async def get_roles(session: AsyncSession) -> list[Role]:
+    stmt = select(Role).order_by(Role.id).where(Role.archived.is_(False))
     result: Result = await session.execute(stmt)
     roles = result.scalars().all()
     return list(roles)
