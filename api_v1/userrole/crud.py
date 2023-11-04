@@ -2,10 +2,11 @@ from fastapi import HTTPException
 from sqlalchemy import Result, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from starlette import status
 
-from api_v1.role.schemas import UserRoleCreate, UserRoleUpdatePartial
-from core.models import UserRole
+from api_v1.userrole.schemas import UserRoleCreate, UserRoleUpdatePartial
+from core.models import UserRole, User, Role
 
 
 class ExistStatus:
@@ -69,6 +70,22 @@ async def update_userrole(
         )
     return userrole
 
-# get roles of user
 
-# get users with this role
+async def get_roles_of_user(session: AsyncSession, user_id: int) -> list[Role]:
+    stmt = select(UserRole).options(joinedload(UserRole.role)).where(UserRole.user_id == user_id)
+    result: Result = await session.execute(stmt)
+    objs = result.scalars().all()
+
+    roles_list = [obj.role for obj in objs]
+
+    return roles_list
+
+
+async def get_users_of_role(session: AsyncSession, role_id: int) -> list[User]:
+    stmt = select(UserRole).options(joinedload(UserRole.user)).where(UserRole.role_id == role_id)
+    result: Result = await session.execute(stmt)
+    objs = result.scalars().all()
+
+    users_list = [obj.user for obj in objs]
+
+    return users_list

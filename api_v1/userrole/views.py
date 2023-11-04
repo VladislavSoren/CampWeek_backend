@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.role.schemas import Role
+from api_v1.user.schemas import User
 from api_v1.userrole import crud
 from api_v1.userrole.dependencies import userrole_by_id
 from api_v1.userrole.schemas import UserRole, UserRoleUpdatePartial, UserRoleCreate
@@ -49,3 +51,19 @@ async def update_userrole_partial(
         session=session,
         partial=True,
     )
+
+
+@router.get("/roles_of_user/{user_id}", response_model=list[Role])
+async def get_roles_of_user(
+        user_id: int,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.get_roles_of_user(session=session, user_id=user_id)
+
+
+@router.get("/users_of_role/{role_id}", response_model=list[User])
+async def get_users_of_role(
+        role_id: int,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.get_users_of_role(session=session, role_id=role_id)
