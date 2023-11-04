@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import BigInteger, Date, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, Date, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -31,6 +31,7 @@ class User(Base):
     bdate: Mapped[datetime.date] = mapped_column(Date(), nullable=True, unique=False)
 
     region_id: Mapped[int] = mapped_column(ForeignKey("region.id"), nullable=True)
+    archived: Mapped[bool] = mapped_column(Boolean(), nullable=True, default=False)
 
     # relationships
     region = relationship("Region", back_populates="user")
