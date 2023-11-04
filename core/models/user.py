@@ -34,29 +34,20 @@ class User(Base):
 
     # relationships
     region = relationship("Region", back_populates="user")
-    admin = relationship("Admin", back_populates="user")
-    creator = relationship("Creator", back_populates="user")
-    speaker = relationship("Speaker", back_populates="user")
+    role = relationship("UserRole", back_populates="user")
 
 
-class Admin(Base):
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+class Role(Base):
+    name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
 
     # relationships
-    user = relationship("User", back_populates="admin")
+    user = relationship("UserRole", back_populates="role")
 
 
-class Creator(Base):
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
-
-    # relationships
-    user = relationship("User", back_populates="creator")
-    event = relationship("Event", back_populates="creator")
-
-
-class Speaker(Base):
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+class UserRole(Base):
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), nullable=True)
 
     # relationships
-    user = relationship("User", back_populates="speaker")
-    event = relationship("Event", back_populates="speaker")
+    user = relationship("User", back_populates="role")
+    role = relationship("Role", back_populates="user")

@@ -3,9 +3,8 @@ __all__ = (
     "DatabaseHelper",
     "db_helper",
     "User",
-    "Admin",
-    "Creator",
-    "Speaker",
+    "Role",
+    "UserRole",
     "Region",
     "Event",
 )
@@ -15,6 +14,6 @@ __all__ = (
 from .base import Base
 
 from .db_helper import DatabaseHelper, db_helper
-from .user import User, Admin, Creator, Speaker
+from .user import User, Role, UserRole
 from .region import Region
 from .event import Event
