@@ -3,8 +3,9 @@ from sqlalchemy import Result, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.user.schemas import UserCreate
+from api_v1.user.schemas import UserCreate, UserUpdatePartial
 from core.models import User
+
 
 # from sqlalchemy.orm import selectinload
 
@@ -47,6 +48,20 @@ async def get_user_by_vk_id(session: AsyncSession, user_vk_id) -> User | None:
     user = result.scalars().one()
     return user
 
+
+async def update_user(
+        user_update: UserUpdatePartial,
+        user: User,
+        session: AsyncSession,
+        partial: bool = False,
+) -> User | None:
+    # обновляем атрибуты
+    for name, value in user_update.model_dump(exclude_unset=partial).items():
+        if name != "vk_id":
+            setattr(user, name, value)
+    await session.commit()
+
+    return user
 
 # async def get_all_auto_drivers(session: AsyncSession, auto_id) -> list[Driver]:
 #     stmt = select(Auto).options(selectinload(Auto.driver)).where(Auto.id == auto_id)

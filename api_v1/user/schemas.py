@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserBase(BaseModel):
-    vk_id: str | None = Field(max_length=100)
+    vk_id: str = Field(max_length=100)
     first_name: str | None = Field(max_length=100)
     last_name: str | None = Field(max_length=100)
     sex: int | None = Field(ge=0, le=2)
@@ -15,6 +15,16 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     pass
+
+
+class UserUpdatePartial(UserBase):
+    vk_id: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    sex: int | None = None
+    city: str | None = None
+    bdate: datetime.date | None = None
+    region_id: int | None = None
 
 
 class User(UserBase):

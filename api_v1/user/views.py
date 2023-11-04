@@ -9,7 +9,7 @@ from starlette.responses import RedirectResponse
 
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
-from api_v1.user.schemas import User, UserCreate
+from api_v1.user.schemas import User, UserCreate, UserUpdatePartial
 from api_v1.user.utils import create_access_token, create_refresh_token
 from core.config import settings
 from core.models import db_helper
@@ -29,9 +29,9 @@ async def vk_auth_start(request: Request):
 
 @router.get("/vk_auth_callback/", response_class=RedirectResponse)
 async def vk_auth_callback(
-    request: Request,
-    response: Response,
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+        request: Request,
+        response: Response,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     code_str = request.query_params  # 'code=77988c5befef82f190'
 
@@ -106,19 +106,34 @@ def cookie_set2() -> RedirectResponse:
 
 @router.get("/", response_model=list[User])
 async def get_users(
-    request: Request,
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+        request: Request,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.get_users(session=session)
 
 
 @router.get("/{user_id}/", response_model=User)
 async def get_user(
-    user: User = Depends(user_by_id),
-    # token: str = Depends(oauth2_scheme)
+        user: User = Depends(user_by_id),
+        # token: str = Depends(oauth2_scheme)
 ):
     # token
     return user
+
+
+@router.patch("/{user_id}/", response_model=User)
+async def update_user_partial(
+    user_update: UserUpdatePartial,
+    user: User = Depends(user_by_id),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.update_user(
+        user_update=user_update,
+        user=user,
+        session=session,
+        partial=True,
+    )
+
 
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
