@@ -27,12 +27,15 @@ async def create_userrole(session: AsyncSession, userrole_in: UserRoleCreate) ->
     except IntegrityError as e:
         await session.rollback()
         if "UniqueViolationError" in e.args[0]:
-            return ExistStatus.EXISTS
-        if "is not present in table" in e.args[0]:
+            raise HTTPException(
+                status_code=status.HTTP_202_ACCEPTED,
+                detail=f'''DB_exception (UniqueViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
+            )
+        if "ForeignKeyViolationError" in e.args[0]:
             # raise db_exception("Key is not present in table")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="DB_exception: Key is not present in table",
+                detail=f'''DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
             )
     finally:
         await session.close()
@@ -66,7 +69,7 @@ async def update_userrole(
     except IntegrityError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'''DB_exception: {e.args[0].split("DETAIL:")[-1].strip()}''',
+            detail=f'''DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
         )
     return userrole
 

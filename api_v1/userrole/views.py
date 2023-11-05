@@ -24,7 +24,7 @@ async def create_userrole(
 
 
 @router.get("/", response_model=list[UserRole])
-async def get_userrole(
+async def get_userroles(
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.get_userroles(session=session)

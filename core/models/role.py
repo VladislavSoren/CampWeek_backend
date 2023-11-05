@@ -1,5 +1,5 @@
 
-from sqlalchemy import ForeignKey, String, Boolean
+from sqlalchemy import ForeignKey, String, Boolean, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -16,6 +16,9 @@ class Role(Base):
 class UserRole(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
     role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), nullable=True)
+
+    # additional properties
+    __table_args__ = (UniqueConstraint("user_id", "role_id", name="unique_user_role_unit"),)
 
     # relationships
     user = relationship("User", back_populates="role")
