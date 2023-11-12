@@ -69,7 +69,8 @@ class DevelopmentConfigLocal(Config):
 
 class DevelopmentConfigDocker(Config):
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@pg:{PORT}/{DB_NAME}"
-    ACCOUNT_PAGE_URL: str = PROTOCOL + FRONTEND_URL_PROD + "/account"
+    ACCOUNT_PAGE_URL: str = PROTOCOL + FRONTEND_URL_LOCAL + "/account"
+
 
 class ProdConfigLocal(Config):
     # for form auth URL
