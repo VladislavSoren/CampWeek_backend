@@ -9,10 +9,11 @@ from fastapi.params import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
 
+from api_v1.auth.auth_bearer import JWTBearerAccess, JWTBearerRefresh
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate, UserUpdatePartial
-from api_v1.user.utils import create_access_token, create_refresh_token
+from api_v1.auth.auth_handler import create_access_token, create_refresh_token
 from core.config import settings
 from core.models import db_helper
 
@@ -29,6 +30,7 @@ async def vk_auth_start(request: Request):
     return RedirectResponse(vk_auth_url)
 
 
+# login
 @router.get("/vk_auth_callback/", response_class=RedirectResponse)
 async def vk_auth_callback(
         request: Request,
@@ -91,8 +93,8 @@ async def vk_auth_callback(
     response = RedirectResponse(url=settings.ACCOUNT_PAGE_URL, status_code=status.HTTP_303_SEE_OTHER)
 
     # add cookie in response
-    response.set_cookie(key="access_token", value=create_access_token(created_user.id))
-    response.set_cookie(key="refresh_token", value=create_refresh_token(created_user.id))
+    response.set_cookie(key="access_token", value=create_access_token(created_user.id), httponly=True)
+    response.set_cookie(key="refresh_token", value=create_refresh_token(created_user.id), httponly=True)
 
     return response
 
@@ -115,17 +117,20 @@ async def get_users(
 
 @router.get("/all/", response_model=list[User])
 async def get_all_users(
+        request: Request,
+        access_token_info: dict = Depends(JWTBearerAccess()),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
+    # Get header
+    # access_token = request.headers.get('access_token')
+
     return await crud.get_all_users(session=session)
 
 
 @router.get("/{user_id}/", response_model=User)
 async def get_user(
         user: User = Depends(user_by_id),
-        # token: str = Depends(oauth2_scheme)
 ):
-    # token
     return user
 
 
@@ -166,8 +171,17 @@ async def archive_user(
         session=session,
     )
     return {"msg": f"User {user_id} was archived!"}
-    # return await user_by_id(user_id, session)
 
+
+# @router.post('/refresh', response_class=Response)
+@router.post('/refresh')
+async def refresh(
+        # response: Response,
+        access_token_info: dict = Depends(JWTBearerRefresh())
+):
+    token = create_access_token(int(access_token_info.get("sub")))
+    # response.set_cookie(key="access_token", value=create_access_token(int(access_token_info.get("sub"))), httponly=True)
+    return {'access_token': token}
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
 # async def get_all_auto_drivers(
