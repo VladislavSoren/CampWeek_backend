@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, Integer
+from sqlalchemy import DateTime, ForeignKey, String, Text, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -12,17 +12,37 @@ class Event(Base):
     date_time: Mapped[datetime.datetime] = mapped_column(DateTime(), unique=False)
 
     region_id: Mapped[int] = mapped_column(ForeignKey("region.id"))
-    # creator_id: Mapped[int] = mapped_column(ForeignKey("creator.id"))
-    # speaker_id: Mapped[int] = mapped_column(ForeignKey("speaker.id"))
-
-    # creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    # speaker_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-
+    creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
 
     # relationships
     region = relationship("Region", back_populates="event")
-    # creator = relationship("Creator", back_populates="event")
-    # speaker = relationship("Speaker", back_populates="event")
+    creator = relationship("User", back_populates="event")
+    speaker = relationship("EventSpeaker", back_populates="event")
+    visitor = relationship("EventVisitor", back_populates="event")
+
+
+class EventSpeaker(Base):
+    event_id: Mapped[int] = mapped_column(ForeignKey("event.id"), nullable=True)
+    speaker_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+
+    # additional properties
+    __table_args__ = (UniqueConstraint("event_id", "speaker_id", name="unique_event_speaker_unit"),)
+
+    # relationships
+    event = relationship("Event", back_populates="speaker")
+    speaker = relationship("User", back_populates="event_speaker")
+
+
+class EventVisitor(Base):
+    event_id: Mapped[int] = mapped_column(ForeignKey("event.id"), nullable=True)
+    visitor_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+
+    # additional properties
+    __table_args__ = (UniqueConstraint("event_id", "visitor_id", name="unique_event_visitor_unit"),)
+
+    # relationships
+    event = relationship("Event", back_populates="visitor")
+    visitor = relationship("User", back_populates="event_visitor")
 
 
 # class Address(Base):
