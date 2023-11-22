@@ -1,18 +1,37 @@
-import datetime
+from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, Integer, UniqueConstraint
+from sqlalchemy import ForeignKey, String, Text, Integer, UniqueConstraint, Boolean, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+import sqlalchemy as sa
 
 from core.models import Base
 
 
 class Event(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False, unique=False)
+
+    link: Mapped[str] = mapped_column(String(200), nullable=True, unique=False)
+    add_link: Mapped[str] = mapped_column(String(200), nullable=True, unique=False)
+
+    date_time: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, unique=False)
+    time_start: Mapped[str] = mapped_column(String(5), nullable=False, unique=False)
+    time_end: Mapped[str] = mapped_column(String(5), nullable=False, unique=False)
+
+    is_reg_needed: Mapped[bool] = mapped_column(
+        sa.Boolean,
+        nullable=False,
+        server_default=sa.sql.true()
+    )
+
     description: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
-    date_time: Mapped[datetime.datetime] = mapped_column(DateTime(), unique=False)
+    add_info: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
+    notes: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
+
+    # "meetingSpeakerInfo": "Регалии спикера", # NO REALISATION (#SPEAK)
 
     region_id: Mapped[int] = mapped_column(ForeignKey("region.id"))
     creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    # roles_target_audience  # NO REALISATION (#SPEAK)
 
     # relationships
     region = relationship("Region", back_populates="event")

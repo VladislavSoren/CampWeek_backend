@@ -1,19 +1,19 @@
-# from sqlalchemy import Result, select
-# from sqlalchemy.ext.asyncio import AsyncSession
-# from sqlalchemy.orm import selectinload
-#
-# from api_v1.event.schemas import DriverCreate
-# from core.models import Auto, Driver, Route, TrafficUnit
-#
-#
-# async def create_driver(session: AsyncSession, driver_in: DriverCreate) -> Driver:
-#     driver = Driver(**driver_in.model_dump())
-#     session.add(driver)
-#     await session.commit()
-#     # await session.refresh(product)
-#     return driver
-#
-#
+from sqlalchemy import Result, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from api_v1.event.schemas import EventCreate
+from core.models import Event
+
+
+async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
+    event = Event(**event_in.model_dump())
+    session.add(event)
+    await session.commit()
+    # await session.refresh(product)
+    return event
+
+
 # async def get_drivers(session: AsyncSession) -> list[Driver]:
 #     stmt = select(Driver).order_by(Driver.id)
 #     result: Result = await session.execute(stmt)

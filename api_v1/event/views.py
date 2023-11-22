@@ -1,26 +1,24 @@
-# from fastapi import APIRouter, Depends, status
-# from sqlalchemy.ext.asyncio import AsyncSession
-#
-# from api_v1.event import crud
-# from api_v1.event.dependencies import driver_by_id
-# from api_v1.event.schemas import Driver, DriverCreate
-# from api_v1.route.schemas import Route
-# from api_v1.user.schemas import Auto
-# from core.models import db_helper
-#
-# router = APIRouter(
-#     tags=["Driver"],
-# )
-#
-#
-# @router.post("/", response_model=Driver, status_code=status.HTTP_201_CREATED)
-# async def create_driver(
-#     driver_in: DriverCreate,
-#     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     return await crud.create_driver(session, driver_in)
-#
-#
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api_v1.event import crud
+# from api_v1.event.dependencies import event_by_id
+from api_v1.event.schemas import Event, EventCreate
+from core.models import db_helper
+
+router = APIRouter(
+    tags=["Event"],
+)
+
+
+@router.post("/", response_model=Event, status_code=status.HTTP_201_CREATED)
+async def create_event(
+    event_in: EventCreate,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.create_event(session, event_in)
+
+
 # @router.get("/", response_model=list[Driver])
 # async def get_drivers(
 #     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
