@@ -22,6 +22,11 @@ class Event(Base):
         nullable=False,
         server_default=sa.sql.true()
     )
+    approved: Mapped[bool] = mapped_column(
+        sa.Boolean,
+        nullable=False,
+        server_default=sa.sql.false()
+    )
 
     description: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
     add_info: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)

@@ -14,15 +14,15 @@ async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
     return event
 
 
-# async def get_drivers(session: AsyncSession) -> list[Driver]:
-#     stmt = select(Driver).order_by(Driver.id)
-#     result: Result = await session.execute(stmt)
-#     drivers = result.scalars().all()
-#     return list(drivers)
-#
-#
-# async def get_driver(session: AsyncSession, driver_id) -> Driver | None:
-#     return await session.get(Driver, driver_id)
+async def get_events(session: AsyncSession) -> list[Event]:
+    stmt = select(Event).order_by(Event.id)
+    result: Result = await session.execute(stmt)
+    events = result.scalars().all()
+    return list(events)
+
+
+async def get_event(session: AsyncSession, event_id) -> Event | None:
+    return await session.get(Event, event_id)
 #
 #
 # async def get_all_driver_autos(session: AsyncSession, driver_id) -> list[Auto]:

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event import crud
-# from api_v1.event.dependencies import event_by_id
+from api_v1.event.dependencies import event_by_id
 from api_v1.event.schemas import Event, EventCreate
 from core.models import db_helper
 
@@ -19,18 +19,18 @@ async def create_event(
     return await crud.create_event(session, event_in)
 
 
-# @router.get("/", response_model=list[Driver])
-# async def get_drivers(
-#     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     return await crud.get_drivers(session=session)
-#
-#
-# @router.get("/{driver_id}/", response_model=Driver)
-# async def get_driver(
-#     driver: Driver = Depends(driver_by_id),
-# ):
-#     return driver
+@router.get("/", response_model=list[Event])
+async def get_events(
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.get_events(session=session)
+
+
+@router.get("/{event_id}/", response_model=Event)
+async def get_event(
+    event: Event = Depends(event_by_id),
+):
+    return event
 #
 #
 # @router.get("/{driver_id}/autos/", response_model=list[Auto])

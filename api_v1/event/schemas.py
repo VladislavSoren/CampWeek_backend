@@ -11,6 +11,7 @@ class EventBase(BaseModel):
     time_start: str
     time_end: str
     is_reg_needed: bool
+    approved: bool
     description: str
     add_info: str
     notes: str
