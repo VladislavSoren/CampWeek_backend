@@ -54,11 +54,14 @@ class Config(BaseSettings):
     user_prefix: str = "/user"
     role_prefix: str = "/role"
     userrole_prefix: str = "/userrole"
+    event_prefix: str = "/event"
+    eventspeaker_prefix: str = "/eventspeaker"
+    eventvisitor_prefix: str = "/eventvisitor"
 
     # JWT
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 2
 
     # pages urls
     ACCOUNT_PAGE_URL: str = "/"
