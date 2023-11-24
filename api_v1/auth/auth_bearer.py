@@ -20,6 +20,14 @@ class JWTBearerAccess(HTTPBearer):
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
 
+def check_access_token(access_token_str):
+    if 'Bearer' not in access_token_str:
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+    access_token = access_token_str.split('Bearer')[-1].strip()
+    decoded_access_token = decode_access_token(access_token)
+    return decoded_access_token
+
+
 class JWTBearerRefresh(HTTPBearer):
     def __init__(self, auto_error: bool = True):
         super(JWTBearerRefresh, self).__init__(auto_error=auto_error)

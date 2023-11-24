@@ -9,7 +9,7 @@ from fastapi.params import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import RedirectResponse
 
-from api_v1.auth.auth_bearer import JWTBearerAccess, JWTBearerRefresh
+from api_v1.auth.auth_bearer import JWTBearerAccess, JWTBearerRefresh, check_access_token
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate, UserUpdatePartial
@@ -21,6 +21,26 @@ from core.models import db_helper
 router = APIRouter(
     tags=["User"],
 )
+
+
+# check access
+@router.post('/check_access/')
+async def check_access(
+        request: Request,
+):
+    access_token_str = request.headers.get('Authorization')
+    if check_access_token(access_token_str):
+        return {'access': True}
+
+
+# @router.post('/refresh', response_class=Response)
+@router.post('/refresh/')
+async def refresh(
+        access_token_info: dict = Depends(JWTBearerRefresh())
+):
+    token = create_access_token(int(access_token_info.get("sub")))
+    # response.set_cookie(key="access_token", value=create_access_token(int(access_token_info.get("sub"))), httponly=True)
+    return {'access_token': token}
 
 
 @router.get("/vk_auth_start/", status_code=status.HTTP_200_OK)
@@ -171,17 +191,6 @@ async def archive_user(
         session=session,
     )
     return {"msg": f"User {user_id} was archived!"}
-
-
-# @router.post('/refresh', response_class=Response)
-@router.post('/refresh')
-async def refresh(
-        # response: Response,
-        access_token_info: dict = Depends(JWTBearerRefresh())
-):
-    token = create_access_token(int(access_token_info.get("sub")))
-    # response.set_cookie(key="access_token", value=create_access_token(int(access_token_info.get("sub"))), httponly=True)
-    return {'access_token': token}
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
 # async def get_all_auto_drivers(
