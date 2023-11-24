@@ -31,6 +31,7 @@ class Event(Base):
     description: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
     add_info: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
     notes: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
+    roles: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
 
     # "meetingSpeakerInfo": "Регалии спикера", # NO REALISATION (#SPEAK)
 

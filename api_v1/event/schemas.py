@@ -15,6 +15,7 @@ class EventBase(BaseModel):
     description: str
     add_info: str
     notes: str
+    roles: str
     region_id: int
     creator_id: int
 
