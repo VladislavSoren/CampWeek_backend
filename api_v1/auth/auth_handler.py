@@ -28,7 +28,8 @@ def decode_access_token(token: str) -> dict:
         return jwt.decode(token, SECRET_KEY_JWT, algorithms=[ALGORITHM])
     except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            # status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -59,7 +60,8 @@ def decode_refresh_token(token: str) -> dict:
         return jwt.decode(token, REFRESH_SECRET_KEY_JWT, algorithms=[ALGORITHM])
     except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            # status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )

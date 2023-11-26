@@ -42,3 +42,11 @@ class JWTBearerRefresh(HTTPBearer):
             return decoded_access_token
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
+
+
+# def check_refresh_token(refresh_token_str):
+#     if 'Bearer' not in refresh_token_str:
+#         raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+#     refresh_token = refresh_token_str.split('Bearer')[-1].strip()
+#     decoded_refresh_token = decode_refresh_token(refresh_token)
+#     return decoded_refresh_token

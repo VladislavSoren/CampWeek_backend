@@ -13,7 +13,7 @@ from api_v1.auth.auth_bearer import JWTBearerAccess, JWTBearerRefresh, check_acc
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate, UserUpdatePartial
-from api_v1.auth.auth_handler import create_access_token, create_refresh_token
+from api_v1.auth.auth_handler import create_access_token, create_refresh_token, decode_refresh_token
 from core.config import settings
 from core.models import db_helper
 
@@ -34,13 +34,24 @@ async def check_access(
 
 
 # @router.post('/refresh', response_class=Response)
-@router.post('/refresh/')
+@router.get('/refresh/')
 async def refresh(
-        access_token_info: dict = Depends(JWTBearerRefresh())
+        request: Request,
 ):
-    token = create_access_token(int(access_token_info.get("sub")))
-    # response.set_cookie(key="access_token", value=create_access_token(int(access_token_info.get("sub"))), httponly=True)
+    refresh_token = request.cookies.get("refresh_token")
+    decoded_refresh_token = decode_refresh_token(refresh_token)
+    token = create_access_token(int(decoded_refresh_token.get("sub")))
     return {'access_token': token}
+
+
+# # @router.post('/refresh', response_class=Response)
+# @router.post('/refresh/')
+# async def refresh(
+#         access_token_info: dict = Depends(JWTBearerRefresh())
+# ):
+#     token = create_access_token(int(access_token_info.get("sub")))
+#     # response.set_cookie(key="access_token", value=create_access_token(int(access_token_info.get("sub"))), httponly=True)
+#     return {'access_token': token}
 
 
 @router.get("/vk_auth_start/", status_code=status.HTTP_200_OK)
@@ -113,7 +124,7 @@ async def vk_auth_callback(
     response = RedirectResponse(url=settings.ACCOUNT_PAGE_URL, status_code=status.HTTP_303_SEE_OTHER)
 
     # add cookie in response
-    response.set_cookie(key="access_token", value=create_access_token(created_user.id), httponly=True)
+    response.set_cookie(key="access_token", value=create_access_token(created_user.id), httponly=False)
     response.set_cookie(key="refresh_token", value=create_refresh_token(created_user.id), httponly=True)
 
     return response
