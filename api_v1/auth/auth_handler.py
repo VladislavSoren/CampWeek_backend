@@ -77,6 +77,3 @@ def decode_refresh_token(token: str) -> dict:
             detail=f"Unknown error: {e}",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-

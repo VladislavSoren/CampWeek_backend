@@ -2,7 +2,7 @@ from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from api_v1.event.schemas import EventCreate
+from api_v1.event.schemas import EventCreate, EventUpdatePartial
 from core.models import Event
 
 
@@ -23,8 +23,22 @@ async def get_events(session: AsyncSession) -> list[Event]:
 
 async def get_event(session: AsyncSession, event_id) -> Event | None:
     return await session.get(Event, event_id)
-#
-#
+
+
+async def update_event(
+        event_update: EventUpdatePartial,
+        event: Event,
+        session: AsyncSession,
+        partial: bool = False,
+) -> Event | None:
+    # обновляем атрибуты
+    for name, value in event_update.model_dump(exclude_unset=partial).items():
+        setattr(event, name, value)
+    await session.commit()
+
+    return event
+
+
 # async def get_all_driver_autos(session: AsyncSession, driver_id) -> list[Auto]:
 #     stmt = (
 #         select(Driver).options(selectinload(Driver.auto)).where(Driver.id == driver_id)

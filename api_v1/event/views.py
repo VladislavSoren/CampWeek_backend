@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event import crud
 from api_v1.event.dependencies import event_by_id
-from api_v1.event.schemas import Event, EventCreate
+from api_v1.event.schemas import Event, EventCreate, EventUpdatePartial
 from core.models import db_helper
 
 router = APIRouter(
@@ -31,8 +31,21 @@ async def get_event(
     event: Event = Depends(event_by_id),
 ):
     return event
-#
-#
+
+
+@router.patch("/{event_id}/", response_model=Event)
+async def update_event_partial(
+        event_update: EventUpdatePartial,
+        event: Event = Depends(event_by_id),
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.update_event(
+        event_update=event_update,
+        event=event,
+        session=session,
+        partial=True,
+    )
+
 # @router.get("/{driver_id}/autos/", response_model=list[Auto])
 # async def get_all_driver_autos(
 #     driver_id: int,
