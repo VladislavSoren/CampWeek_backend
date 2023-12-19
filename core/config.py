@@ -31,6 +31,9 @@ SECRET_KEY_JWT = os.getenv("SECRET_KEY_JWT")
 REFRESH_SECRET_KEY_JWT = os.getenv("REFRESH_SECRET_KEY_JWT")
 # PROTOCOL = os.getenv("PROTOCOL")
 
+# VK
+ACCESS_MESSAGE_GROUP_TOKEN = os.getenv("ACCESS_MESSAGE_GROUP_TOKEN")
+
 
 class Config(BaseSettings):
     origins: list = [
@@ -60,8 +63,8 @@ class Config(BaseSettings):
 
     # JWT
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 2
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 30
 
     # pages urls
     ACCOUNT_PAGE_URL: str = "/"
