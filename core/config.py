@@ -47,7 +47,7 @@ class Config(BaseSettings):
 
     # for form auth URL
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
-    DB_ECHO: bool = True
+    DB_ECHO: bool = False
 
     vk_auth_url: str = f"https://oauth.vk.com/authorize?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY}&response_type=code&display=page&v={VK_API_VERSION}"
     access_token_url: str = f"https://oauth.vk.com/access_token?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY}&client_secret={SOCIAL_AUTH_VK_OAUTH2_SECRET}&response_type=code&v={VK_API_VERSION}"
@@ -60,6 +60,7 @@ class Config(BaseSettings):
     event_prefix: str = "/event"
     eventspeaker_prefix: str = "/eventspeaker"
     eventvisitor_prefix: str = "/eventvisitor"
+    mail_prefix: str = "/mail"
 
     # JWT
     ALGORITHM: str = "HS256"
@@ -82,7 +83,6 @@ class DevelopmentConfigDocker(Config):
 class ProdConfigLocal(Config):
     # for form auth URL
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{DB_PORT_OUT}/{DB_NAME}"
-    DB_ECHO: bool = True
 
     vk_auth_url: str = f"https://oauth.vk.com/authorize?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY_PROD}&response_type=code&display=page&v={VK_API_VERSION}"
     access_token_url: str = f"https://oauth.vk.com/access_token?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY_PROD}&client_secret={SOCIAL_AUTH_VK_OAUTH2_SECRET_PROD}&response_type=code&v={VK_API_VERSION}"
@@ -94,7 +94,6 @@ class ProdConfigLocal(Config):
 class ProdConfigDocker(Config):
     # for form auth URL
     DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@pg:{PORT}/{DB_NAME}"
-    DB_ECHO: bool = True
 
     vk_auth_url: str = f"https://oauth.vk.com/authorize?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY_PROD}&response_type=code&display=page&v={VK_API_VERSION}"
     access_token_url: str = f"https://oauth.vk.com/access_token?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY_PROD}&client_secret={SOCIAL_AUTH_VK_OAUTH2_SECRET_PROD}&response_type=code&v={VK_API_VERSION}"
