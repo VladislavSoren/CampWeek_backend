@@ -9,6 +9,7 @@ from .userrole.views import router as userrole
 from .event.views import router as event_router
 from .eventspeaker.views import router as eventspeaker
 from .eventvisitor.views import router as eventvisitor
+from .mail.views import router as mail_router
 
 router = APIRouter()
 router.include_router(router=user_router, prefix=settings.user_prefix)
@@ -18,3 +19,4 @@ router.include_router(router=userrole, prefix=settings.userrole_prefix)
 router.include_router(router=event_router, prefix=settings.event_prefix)
 router.include_router(router=eventspeaker, prefix=settings.eventspeaker_prefix)
 router.include_router(router=eventvisitor, prefix=settings.eventvisitor_prefix)
+router.include_router(router=mail_router, prefix=settings.mail_prefix)
