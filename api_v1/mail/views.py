@@ -6,7 +6,7 @@ from fastapi.params import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.mail import crud
-# from api_v1.mail.dependencies import auto_event_mail_by_id
+from api_v1.mail.dependencies import auto_event_mail_by_id
 from api_v1.mail.schemas import AutoEventMail, AutoEventMailCreate, AutoEventMailUpdatePartial
 from core.models import db_helper
 
@@ -32,57 +32,57 @@ async def get_auto_event_mails(
     return await crud.get_auto_event_mails(session=session)
 
 
-# @router.get("/all/", response_model=list[Role])
-# async def get_all_roles(
-#         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     return await crud.get_all_roles(session=session)
-# 
-# 
-# @router.get("/{role_id}/", response_model=Role)
-# async def get_role(
-#         role: Role = Depends(role_by_id),
-#         # token: str = Depends(oauth2_scheme)
-# ):
-#     # token
-#     return role
-# 
-# 
-# @router.patch("/{role_id}/", response_model=Role)
-# async def update_role_partial(
-#         role_update: RoleUpdatePartial,
-#         role: Role = Depends(role_by_id),
-#         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     return await crud.update_role(
-#         role_update=role_update,
-#         role=role,
-#         session=session,
-#         partial=True,
-#     )
-# 
-# 
-# @router.patch("/{role_id}/restore/", response_model=Role)
-# async def archive_role(
-#         role_id: Annotated[int, Path],
-#         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     await crud.restore_role(
-#         role_id=role_id,
-#         session=session,
-#     )
-# 
-#     return await role_by_id(role_id, session)
-# 
-# 
-# @router.delete("/{role_id}/", response_model=Role)
-# async def archive_role(
-#         role_id: Annotated[int, Path],
-#         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     await crud.archive_role(
-#         role_id=role_id,
-#         session=session,
-#     )
-# 
-#     return await role_by_id(role_id, session)
+@router.get("/all/", response_model=list[AutoEventMail])
+async def get_all_auto_event_mails(
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.get_all_auto_event_mails(session=session)
+
+
+@router.get("/{auto_event_mail_id}/", response_model=AutoEventMail)
+async def get_auto_event_mail(
+        auto_event_mail: AutoEventMail = Depends(auto_event_mail_by_id),
+        # token: str = Depends(oauth2_scheme)
+):
+    # token
+    return auto_event_mail
+
+
+@router.patch("/{auto_event_mail_id}/", response_model=AutoEventMail)
+async def update_auto_event_mail_partial(
+        auto_event_mail_update: AutoEventMailUpdatePartial,
+        auto_event_mail: AutoEventMail = Depends(auto_event_mail_by_id),
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    return await crud.update_auto_event_mail(
+        auto_event_mail_update=auto_event_mail_update,
+        auto_event_mail=auto_event_mail,
+        session=session,
+        partial=True,
+    )
+
+
+@router.patch("/{auto_event_mail_id}/restore/", response_model=AutoEventMail)
+async def archive_auto_event_mail(
+        auto_event_mail_id: Annotated[int, Path],
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await crud.restore_auto_event_mail(
+        auto_event_mail_id=auto_event_mail_id,
+        session=session,
+    )
+
+    return await auto_event_mail_by_id(auto_event_mail_id, session)
+
+
+@router.delete("/{auto_event_mail_id}/", response_model=AutoEventMail)
+async def archive_auto_event_mail(
+        auto_event_mail_id: Annotated[int, Path],
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await crud.archive_auto_event_mail(
+        auto_event_mail_id=auto_event_mail_id,
+        session=session,
+    )
+
+    return await auto_event_mail_by_id(auto_event_mail_id, session)
