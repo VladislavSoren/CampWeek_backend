@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -9,6 +9,9 @@ class AutoEventMailBase(BaseModel):
     hours_shift: int | None = Field(ge=0, le=24, default=None)
     minutes_shift: int | None = Field(ge=0, le=60, default=None)
     archived: bool | None = Field(default=False)
+
+    send_datetime: datetime | None
+    send_now: bool | None = Field(default=False)
 
 
 class AutoEventMailCreate(AutoEventMailBase):
@@ -21,6 +24,8 @@ class AutoEventMailUpdatePartial(AutoEventMailBase):
     hours_shift: int | None = None
     minutes_shift: int | None = None
     archived: bool | None = None
+    send_datetime: datetime | None = None
+    send_now: bool | None = Field(default=False)
 
 
 class AutoEventMail(AutoEventMailBase):
