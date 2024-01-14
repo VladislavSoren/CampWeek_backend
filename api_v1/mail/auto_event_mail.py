@@ -25,6 +25,7 @@ from sqlalchemy.orm import selectinload
 from api_v1.mail import crud
 from core.config import ACCESS_MESSAGE_GROUP_TOKEN
 from core.models import db_helper, Event, User
+from init_global_shedular import global_scheduler
 
 
 async def get_events_by_date(days_shift):
@@ -131,7 +132,7 @@ async def mail_task_any_hours_minutes_before(event):
 
 
 # функция - задание
-async def make_tasks(scheduler):
+async def make_periodical_tasks():
     current_time = datetime.now()
     # task_execute_date = (current_time + timedelta(days=days_shift)).replace(hour=0, minute=0, second=0,
     #                                                                         microsecond=0)
@@ -149,13 +150,13 @@ async def make_tasks(scheduler):
             # Если указан сдвиг по дню days_shift, то выставляем рсасылку на стандартное время,
             # которые будут, через указанное кол-ов дней, БЕЗ УЧЁТА ДРУГИХ СДВИГОВ
             if auto_event_mail.days_shift is not None and auto_event_mail.days_shift != 0:
-                scheduler.add_job(
+                global_scheduler.add_job(
                     mail_task_any_days_before,
                     args=[auto_event_mail.days_shift], trigger='date',
                     run_date=task_execute_date.strftime("%Y-%m-%d %H:%M:%S"),
                     misfire_grace_time=60,  # sec
                 )
-                scheduler.print_jobs()
+                global_scheduler.print_jobs()
             # Если кол-во дней НЕ указано - проверяем все мероприятия на текущий день
             # Выставляем время рассылки по сдвигам hours_shift, minutes_shift
             else:
@@ -180,7 +181,7 @@ async def make_tasks(scheduler):
                     ))
 
                     job_id = f"mail_task_any_hours_minutes_before_{mail_task_id}{event_id}_{event.name}"
-                    scheduler.add_job(
+                    global_scheduler.add_job(
                         mail_task_any_hours_minutes_before,
                         args=[event], trigger='date',
                         run_date=task_execute_date.strftime("%Y-%m-%d %H:%M:%S"),
@@ -188,5 +189,5 @@ async def make_tasks(scheduler):
                         replace_existing=True,
                         id=job_id
                     )
-                scheduler.print_jobs()
+                global_scheduler.print_jobs()
 

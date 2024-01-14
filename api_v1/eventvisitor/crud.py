@@ -54,6 +54,14 @@ async def get_eventvisitor(session: AsyncSession, eventvisitor_id) -> EventVisit
     return await session.get(EventVisitor, eventvisitor_id)
 
 
+async def get_event_visitors_id_set(session: AsyncSession, event_id) -> set[int] | None:
+    stmt = select(EventVisitor).where(EventVisitor.event_id == event_id)
+    result: Result = await session.execute(stmt)
+    objs = result.scalars().all()
+
+    users_id_set = {obj.visitor_id for obj in objs}
+    return users_id_set
+
 # async def update_userrole(
 #         userrole_update: UserRoleUpdatePartial,
 #         userrole: UserRole,

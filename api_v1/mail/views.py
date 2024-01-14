@@ -6,6 +6,7 @@ from fastapi.params import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.mail import crud
+from api_v1.mail.crud import make_manual_mailing
 from api_v1.mail.dependencies import auto_event_mail_by_id
 from api_v1.mail.schemas import AutoEventMail, AutoEventMailCreate, AutoEventMailUpdatePartial
 from core.models import db_helper
@@ -86,3 +87,24 @@ async def archive_auto_event_mail(
     )
 
     return await auto_event_mail_by_id(auto_event_mail_id, session)
+
+
+@router.post("create_manual_mail_task_by_active_visitors/", status_code=status.HTTP_201_CREATED)
+async def create_manual_mail_task_by_active_visitors(
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await make_manual_mailing(session)
+
+
+@router.post("create_manual_mail_task_by_active_visitors/", status_code=status.HTTP_201_CREATED)
+async def create_manual_mail_task_by_active_visitors(
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await make_manual_mailing(session)
+
+## NOW!
+# @router.post("create_manual_mail_task_by_active_visitors_now/", status_code=status.HTTP_201_CREATED)
+# async def create_manual_mail_task_by_active_visitors(
+#         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+# ):
+#     await make_manual_mailing(session)
