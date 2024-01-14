@@ -89,18 +89,17 @@ async def archive_auto_event_mail(
     return await auto_event_mail_by_id(auto_event_mail_id, session)
 
 
-@router.post("create_manual_mail_task_by_active_visitors/", status_code=status.HTTP_201_CREATED)
-async def create_manual_mail_task_by_active_visitors(
+@router.post("create_manual_mail_task_by_users/", status_code=status.HTTP_201_CREATED)
+async def create_manual_mail_task_by_users(
+        any_registered: bool,
+        auto_event_mail_update: AutoEventMailUpdatePartial,
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    await make_manual_mailing(session)
-
-
-@router.post("create_manual_mail_task_by_active_visitors/", status_code=status.HTTP_201_CREATED)
-async def create_manual_mail_task_by_active_visitors(
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-):
-    await make_manual_mailing(session)
+    await make_manual_mailing(
+        session=session,
+        event_mail_task=auto_event_mail_update,
+        any_registered=any_registered,
+    )
 
 ## NOW!
 # @router.post("create_manual_mail_task_by_active_visitors_now/", status_code=status.HTTP_201_CREATED)

@@ -19,11 +19,13 @@ from datetime import datetime, timedelta
 
 import vk_api
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from fastapi import HTTPException
 # from sqlalchemy import Result, select
 from sqlalchemy import Result, select, update, and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from starlette import status
 
 from api_v1.event.crud import get_actual_events
 from api_v1.eventvisitor.crud import get_event_visitors_id_set
@@ -102,53 +104,65 @@ async def restore_auto_event_mail(session: AsyncSession, auto_event_mail_id):
     await session.commit()
 
 
-async def make_manual_mailing(session):
+async def make_manual_mailing(session, event_mail_task, any_registered):
     global_scheduler.print_jobs()
 
-    users_list = set()
+    users_registered_set = set()
 
     # async with db_helper.async_session_factory() as session:
 
     # Получаем всех НЕ удалённых юзеров
-    users = await get_users(session)
+    users_all_not_archived = await get_users(session)
 
     # Получаем все АКТУАЛЬНЫЕ и НЕ удалённые события
     events = await get_actual_events(session)
 
     # Формируем кортеж юзеров, которые зарегестрированы хотя бы на одно событие
-    for user in users:
+    for user in users_all_not_archived:
         for event in events:
             users_id_set = await get_event_visitors_id_set(session, event.id)
 
             if user.id in users_id_set:
-                users_list.add(user)
+                users_registered_set.add(user)
                 break
 
-    current_time = datetime.now()
-    task_execute_date = (current_time + timedelta(
-        minutes=1
-    ))
+    if not any_registered:
+        users_for_mail = set(users_all_not_archived) - users_registered_set
+    else:
+        users_for_mail = users_registered_set
 
-    # await send_mail_by_users(users_list)
+    # При выставленном флаге send_now - осуществляется мгноаенная рассылка
+    # При send_datetime - рассылка по указынной дате и времени
+    if event_mail_task.send_now and event_mail_task.send_datetime is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Only one field must be filled",
+        )
 
-    print(f"scheduler crud id - {id(global_scheduler)}")
+    if event_mail_task.send_now:
+        await send_mail_by_users(users_for_mail)
+    else:
+        if event_mail_task.send_datetime is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"One of the fields must be filled",
+            )
+        else:
+            task_execute_date = event_mail_task.send_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            global_scheduler.add_job(
+                send_mail_by_users,
+                args=[users_for_mail], trigger='date',
+                run_date=task_execute_date,
+                misfire_grace_time=60,  # sec
+                id=f'manual_{task_execute_date}',
+                replace_existing=True,
+            )
+            global_scheduler.print_jobs()
 
-    global_scheduler.add_job(
-        send_mail_by_users,
-        args=[users_list], trigger='date',
-        run_date=task_execute_date.strftime("%Y-%m-%d %H:%M:%S"),
-        misfire_grace_time=60,  # sec
-        id='manual_1232131312',
-        replace_existing=True,
-    )
-    global_scheduler.print_jobs()
-
-    # scheduler.add_job(
-    #     send_mail_by_users,
-    #     args=[users_list],
-    #     misfire_grace_time=300,
-    # )
-    # scheduler.print_jobs()
+    # current_time = datetime.now()
+    # task_execute_date = (current_time + timedelta(
+    #     minutes=1
+    # ))
 
 
 async def send_mail_by_users(users):
