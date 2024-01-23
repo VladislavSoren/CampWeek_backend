@@ -8,12 +8,12 @@ from core.models import db_helper, UserRole
 from . import crud
 
 from functools import wraps
-from typing import Callable
+from typing import Callable, Union
 
 
 async def userrole_by_id(
-        obj_id: Annotated[int, Path],
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    obj_id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> UserRole:
     obj = await crud.get_userrole(session=session, userrole_id=obj_id)
     if obj is not None:
@@ -25,24 +25,27 @@ async def userrole_by_id(
     )
 
 
-def has_role(required_role: str) -> Callable:
+def has_role(required_roles: Union[str, list[str]]) -> Callable:
+    if isinstance(required_roles, str):
+        required_roles = [required_roles]
+
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(
-            *args,
             requesting_user_id: int = Depends(userrole_by_id),
             session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-            **kwargs
+            *args,
+            **kwargs,
         ):
             user_roles = await crud.get_roles_of_user(session, requesting_user_id)
             user_role_names = {role.name for role in user_roles}
 
-            if required_role in user_role_names:
+            if any(role in user_role_names for role in required_roles):
                 return await func(*args, session=session, **kwargs)
             else:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"You do not have the required role ({required_role}) to perform this action",
+                    detail=f"You do not have any of the required roles to perform this action",
                 )
 
         return wrapper

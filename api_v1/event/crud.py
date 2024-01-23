@@ -26,10 +26,10 @@ async def get_event(session: AsyncSession, event_id) -> Event | None:
 
 
 async def update_event(
-        event_update: EventUpdatePartial,
-        event: Event,
-        session: AsyncSession,
-        partial: bool = False,
+    event_update: EventUpdatePartial,
+    event: Event,
+    session: AsyncSession,
+    partial: bool = False,
 ) -> Event | None:
     # обновляем атрибуты
     for name, value in event_update.model_dump(exclude_unset=partial).items():

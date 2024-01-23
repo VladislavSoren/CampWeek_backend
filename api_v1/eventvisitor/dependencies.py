@@ -9,8 +9,8 @@ from . import crud
 
 
 async def eventvisitor_by_id(
-        obj_id: Annotated[int, Path],
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    obj_id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> EventVisitor:
     obj = await crud.get_eventvisitor(session=session, eventvisitor_id=obj_id)
     if obj is not None:

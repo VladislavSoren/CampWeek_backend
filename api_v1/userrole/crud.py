@@ -29,13 +29,13 @@ async def create_userrole(session: AsyncSession, userrole_in: UserRoleCreate) ->
         if "UniqueViolationError" in e.args[0]:
             raise HTTPException(
                 status_code=status.HTTP_202_ACCEPTED,
-                detail=f'''DB_exception (UniqueViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
+                detail=f"""DB_exception (UniqueViolationError): {e.args[0].split("DETAIL:")[-1].strip()}""",
             )
         if "ForeignKeyViolationError" in e.args[0]:
             # raise db_exception("Key is not present in table")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f'''DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
+                detail=f"""DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}""",
             )
     finally:
         await session.close()
@@ -55,10 +55,10 @@ async def get_userrole(session: AsyncSession, userrole_id) -> UserRole | None:
 
 
 async def update_userrole(
-        userrole_update: UserRoleUpdatePartial,
-        userrole: UserRole,
-        session: AsyncSession,
-        partial: bool = False,
+    userrole_update: UserRoleUpdatePartial,
+    userrole: UserRole,
+    session: AsyncSession,
+    partial: bool = False,
 ) -> UserRole | None:
     # обновляем атрибуты
     for name, value in userrole_update.model_dump(exclude_unset=partial).items():
@@ -69,7 +69,7 @@ async def update_userrole(
     except IntegrityError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'''DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
+            detail=f"""DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}""",
         )
     return userrole
 
@@ -94,23 +94,14 @@ async def get_users_of_role(session: AsyncSession, role_id: int) -> list[User]:
     return users_list
 
 
-async def delete_userrole(session: AsyncSession, userrole_id: int, requesting_user_id: int) -> None:
+async def delete_userrole(session: AsyncSession, userrole_id: int) -> None:
     userrole = await get_userrole(session, userrole_id)
-    if userrole:
-        # Check if the requesting user has the necessary permissions to delete the user role
-        requesting_user_roles = await get_roles_of_user(session, requesting_user_id)
-        requesting_user_role_ids = {role.id for role in requesting_user_roles}
 
-        if userrole.role_id in requesting_user_role_ids:
-            session.delete(userrole)
-            await session.commit()
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not have permission to delete this user role",
-            )
+    if userrole is not None:
+        session.delete(userrole)
+        await session.commit()
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User role with ID {userrole_id} not found",
+            detail=f"UserRole {userrole_id} not found!",
         )

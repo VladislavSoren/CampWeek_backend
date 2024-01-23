@@ -17,16 +17,8 @@ class Event(Base):
     time_start: Mapped[str] = mapped_column(String(5), nullable=False, unique=False)
     time_end: Mapped[str] = mapped_column(String(5), nullable=False, unique=False)
 
-    is_reg_needed: Mapped[bool] = mapped_column(
-        sa.Boolean,
-        nullable=False,
-        server_default=sa.sql.true()
-    )
-    approved: Mapped[bool] = mapped_column(
-        sa.Boolean,
-        nullable=False,
-        server_default=sa.sql.false()
-    )
+    is_reg_needed: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, server_default=sa.sql.true())
+    approved: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, server_default=sa.sql.false())
 
     description: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)
     add_info: Mapped[str] = mapped_column(Text(), nullable=True, unique=False)

@@ -46,10 +46,10 @@ async def get_role(session: AsyncSession, role_id) -> Role | None:
 
 
 async def update_role(
-        role_update: RoleUpdatePartial,
-        role: Role,
-        session: AsyncSession,
-        partial: bool = False,
+    role_update: RoleUpdatePartial,
+    role: Role,
+    session: AsyncSession,
+    partial: bool = False,
 ) -> Role | None:
     # обновляем атрибуты
     for name, value in role_update.model_dump(exclude_unset=partial).items():

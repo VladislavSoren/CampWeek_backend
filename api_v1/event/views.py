@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api_v1.event import crud
 from api_v1.event.dependencies import event_by_id
 from api_v1.event.schemas import Event, EventCreate, EventUpdatePartial
+from api_v1.userrole.dependencies import has_role
 from core.models import db_helper
 
 router = APIRouter(
@@ -35,9 +36,9 @@ async def get_event(
 
 @router.patch("/{event_id}/", response_model=Event)
 async def update_event_partial(
-        event_update: EventUpdatePartial,
-        event: Event = Depends(event_by_id),
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    event_update: EventUpdatePartial,
+    event: Event = Depends(event_by_id),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.update_event(
         event_update=event_update,
@@ -46,15 +47,14 @@ async def update_event_partial(
         partial=True,
     )
 
-#!!
-#? Возможно это не нужно, частичный апдейт уже реализован
+
 @router.patch("/{event_id}/approve/", response_model=Event)
+@has_role(["superadmin", "admin"])
 async def approve_event(
     event_update: EventUpdatePartial,
     event: Event = Depends(event_by_id),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-
     event.approved = True
 
     return await crud.update_event(
@@ -63,6 +63,7 @@ async def approve_event(
         session=session,
         partial=True,
     )
+
 
 # @router.get("/{driver_id}/autos/", response_model=list[Auto])
 # async def get_all_driver_autos(
