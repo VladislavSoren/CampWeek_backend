@@ -46,6 +46,24 @@ async def update_event_partial(
         partial=True,
     )
 
+#!!
+#? Возможно это не нужно, частичный апдейт уже реализован
+@router.patch("/{event_id}/approve/", response_model=Event)
+async def approve_event(
+    event_update: EventUpdatePartial,
+    event: Event = Depends(event_by_id),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+
+    event.approved = True
+
+    return await crud.update_event(
+        event_update=event_update,
+        event=event,
+        session=session,
+        partial=True,
+    )
+
 # @router.get("/{driver_id}/autos/", response_model=list[Auto])
 # async def get_all_driver_autos(
 #     driver_id: int,

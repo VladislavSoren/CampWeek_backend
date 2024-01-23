@@ -38,6 +38,22 @@ async def get_eventspeaker(
     # token
     return eventspeaker
 
+
+@router.post("/{event_id}/add-speakers/", response_model=list[EventSpeaker])
+async def add_speakers_to_event(
+        speakers: list[EventSpeakerCreate],
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    added_speakers = []
+    for speaker in speakers:
+    
+        event_speaker = await crud.create_eventspeaker(
+            session=session,
+            eventspeaker_in=speaker,
+        )
+        added_speakers.append(event_speaker)
+
+    return added_speakers
 # 
 # @router.patch("/{obj_id}/", response_model=UserRole)
 # async def update_userrole_partial(
