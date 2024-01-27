@@ -25,24 +25,24 @@ router = APIRouter(
 
 
 # check access
-@router.post('/check_access/')
+@router.post("/check_access/")
 async def check_access(
-        request: Request,
+    request: Request,
 ):
-    access_token_str = request.headers.get('Authorization')
+    access_token_str = request.headers.get("Authorization")
     if check_access_token(access_token_str):
-        return {'access': True}
+        return {"access": True}
 
 
 # @router.post('/refresh', response_class=Response)
-@router.get('/refresh/')
+@router.get("/refresh/")
 async def refresh(
-        request: Request,
+    request: Request,
 ):
     refresh_token = request.cookies.get("refresh_token")
     decoded_refresh_token = decode_refresh_token(refresh_token)
     token = create_access_token(int(decoded_refresh_token.get("sub")))
-    return {'access_token': token}
+    return {"access_token": token}
 
 
 # # @router.post('/refresh', response_class=Response)
@@ -65,9 +65,9 @@ async def vk_auth_start(request: Request):
 # login
 @router.get("/vk_auth_callback/", response_class=RedirectResponse)
 async def vk_auth_callback(
-        request: Request,
-        response: Response,
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    request: Request,
+    response: Response,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     code_str = request.query_params  # 'code=77988c5befef82f190'
 
@@ -197,16 +197,16 @@ def cookie_set2() -> RedirectResponse:
 
 @router.get("/", response_model=list[User])
 async def get_users(
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.get_users(session=session)
 
 
 @router.get("/all/", response_model=list[User])
 async def get_all_users(
-        request: Request,
-        access_token_info: dict = Depends(JWTBearerAccess()),
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    request: Request,
+    access_token_info: dict = Depends(JWTBearerAccess()),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     # Get header
     # access_token = request.headers.get('access_token')
@@ -216,16 +216,16 @@ async def get_all_users(
 
 @router.get("/{user_id}/", response_model=User)
 async def get_user(
-        user: User = Depends(user_by_id),
+    user: User = Depends(user_by_id),
 ):
     return user
 
 
 @router.patch("/{user_id}/", response_model=User)
 async def update_user_partial(
-        user_update: UserUpdatePartial,
-        user: User = Depends(user_by_id),
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    user_update: UserUpdatePartial,
+    user: User = Depends(user_by_id),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.update_user(
         user_update=user_update,
@@ -237,8 +237,8 @@ async def update_user_partial(
 
 @router.patch("/{user_id}/restore/", response_model=User)
 async def archive_user(
-        user_id: Annotated[int, Path],
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    user_id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     await crud.restore_user(
         user_id=user_id,
@@ -250,14 +250,15 @@ async def archive_user(
 
 @router.delete("/{user_id}/", response_model=dict)
 async def archive_user(
-        user_id: Annotated[int, Path],
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    user_id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     await crud.archive_user(
         user_id=user_id,
         session=session,
     )
     return {"msg": f"User {user_id} was archived!"}
+
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
 # async def get_all_auto_drivers(

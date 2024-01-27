@@ -28,8 +28,6 @@ async def user_by_id(
     )
 
 
-
-
 # from typing import Union, Any
 # from datetime import datetime
 # from fastapi import Depends, HTTPException, status

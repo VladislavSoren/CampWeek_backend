@@ -29,13 +29,13 @@ async def create_eventvisitor(session: AsyncSession, eventvisitor_in: EventVisit
         if "UniqueViolationError" in e.args[0]:
             raise HTTPException(
                 status_code=status.HTTP_202_ACCEPTED,
-                detail=f'''DB_exception (UniqueViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
+                detail=f"""DB_exception (UniqueViolationError): {e.args[0].split("DETAIL:")[-1].strip()}""",
             )
         if "ForeignKeyViolationError" in e.args[0]:
             # raise db_exception("Key is not present in table")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f'''DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
+                detail=f"""DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}""",
             )
     finally:
         await session.close()
@@ -71,7 +71,7 @@ async def get_event_visitors_id_set(session: AsyncSession, event_id) -> set[int]
 #     # обновляем атрибуты
 #     for name, value in userrole_update.model_dump(exclude_unset=partial).items():
 #         setattr(userrole, name, value)
-# 
+#
 #     try:
 #         await session.commit()
 #     except IntegrityError as e:
@@ -80,23 +80,23 @@ async def get_event_visitors_id_set(session: AsyncSession, event_id) -> set[int]
 #             detail=f'''DB_exception (ForeignKeyViolationError): {e.args[0].split("DETAIL:")[-1].strip()}''',
 #         )
 #     return userrole
-# 
-# 
+#
+#
 # async def get_roles_of_user(session: AsyncSession, user_id: int) -> list[Role]:
 #     stmt = select(UserRole).options(joinedload(UserRole.role)).where(UserRole.user_id == user_id)
 #     result: Result = await session.execute(stmt)
 #     objs = result.scalars().all()
-# 
+#
 #     roles_list = [obj.role for obj in objs]
-# 
+#
 #     return roles_list
-# 
-# 
+#
+#
 # async def get_users_of_role(session: AsyncSession, role_id: int) -> list[User]:
 #     stmt = select(UserRole).options(joinedload(UserRole.user)).where(UserRole.role_id == role_id)
 #     result: Result = await session.execute(stmt)
 #     objs = result.scalars().all()
-# 
+#
 #     users_list = [obj.user for obj in objs]
-# 
+#
 #     return users_list

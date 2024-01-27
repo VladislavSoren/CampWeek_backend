@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 # from starlette.middleware.cors import CORSMiddleware as CORSMiddleware
 
 from api_v1 import router as router_v1

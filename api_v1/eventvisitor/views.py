@@ -17,23 +17,23 @@ router = APIRouter(
 
 @router.post("/", response_model=EventVisitor, status_code=status.HTTP_201_CREATED)
 async def create_eventvisitor(
-        eventvisitor_in: EventVisitorCreate,
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    eventvisitor_in: EventVisitorCreate,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.create_eventvisitor(session=session, eventvisitor_in=eventvisitor_in)
 
 
 @router.get("/", response_model=list[EventVisitor])
 async def get_eventvisitors(
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.get_eventvisitors(session=session)
 
 
 @router.get("/{obj_id}/", response_model=EventVisitor)
 async def get_eventvisitor(
-        eventvisitor: EventVisitor = Depends(eventvisitor_by_id),
-        # token: str = Depends(oauth2_scheme)
+    eventvisitor: EventVisitor = Depends(eventvisitor_by_id),
+    # token: str = Depends(oauth2_scheme)
 ):
     # token
     return eventvisitor
@@ -51,16 +51,16 @@ async def get_eventvisitor(
 #         session=session,
 #         partial=True,
 #     )
-# 
-# 
+#
+#
 # @router.get("/roles_of_user/{user_id}", response_model=list[Role])
 # async def get_roles_of_user(
 #         user_id: int,
 #         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 # ):
 #     return await crud.get_roles_of_user(session=session, user_id=user_id)
-# 
-# 
+#
+#
 # @router.get("/users_of_role/{role_id}", response_model=list[User])
 # async def get_users_of_role(
 #         role_id: int,

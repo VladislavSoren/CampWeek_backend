@@ -35,7 +35,6 @@ class User(Base):
     # ForeignKeys
     region_id: Mapped[int] = mapped_column(ForeignKey("region.id"), nullable=True)
 
-
     # relationships
     region = relationship("Region", back_populates="user")
     role = relationship("UserRole", back_populates="user")

@@ -20,4 +20,3 @@ class RoleUpdatePartial(RoleBase):
 class Role(RoleBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
-

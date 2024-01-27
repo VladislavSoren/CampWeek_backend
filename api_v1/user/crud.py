@@ -57,10 +57,10 @@ async def get_user_by_vk_id(session: AsyncSession, user_vk_id) -> User | None:
 
 
 async def update_user(
-        user_update: UserUpdatePartial,
-        user: User,
-        session: AsyncSession,
-        partial: bool = False,
+    user_update: UserUpdatePartial,
+    user: User,
+    session: AsyncSession,
+    partial: bool = False,
 ) -> User | None:
     # обновляем атрибуты
     for name, value in user_update.model_dump(exclude_unset=partial).items():
