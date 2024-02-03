@@ -140,3 +140,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 sup_script.py
+
+
+# yml
+*.yml

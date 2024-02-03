@@ -1,6 +1,7 @@
-import datetime
+from uuid import uuid4
+from datetime import datetime, timedelta
 
-from sqlalchemy import Date, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Date, ForeignKey, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -23,6 +24,9 @@ bdate: string - '14.9.1970'
 class User(Base):
     vk_id: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
 
+    session: Mapped[str] = mapped_column(String(36), nullable=True, unique=True, default=str(uuid4()))
+    session_expiration: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
     first_name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
 
@@ -41,3 +45,18 @@ class User(Base):
     event = relationship("Event", back_populates="creator")
     event_speaker = relationship("EventSpeaker", back_populates="speaker")
     event_visitor = relationship("EventVisitor", back_populates="visitor")
+
+    def __init__(self, *args, **kwargs):
+        # Generate a unique session ID for each user during object creation
+        if 'session_id' not in kwargs:
+            kwargs['session_id'] = str(uuid4())
+
+        super().__init__(*args, **kwargs)
+
+    def refresh_session(self, expiration_minutes=30):
+        # Update the session expiration timestamp
+        self.session_expiration = datetime.utcnow() + timedelta(minutes=expiration_minutes)
+
+    def is_session_expired(self):
+        # Check if the session has expired
+        return self.session_expiration is not None and self.session_expiration < datetime.utcnow()
