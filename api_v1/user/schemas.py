@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class UserBase(BaseModel):
     vk_id: str = Field(max_length=100)
-    session: str | None = Field(max_length=100)
     first_name: str | None = Field(max_length=100)
     last_name: str | None = Field(max_length=100)
     sex: int | None = Field(ge=0, le=2)
