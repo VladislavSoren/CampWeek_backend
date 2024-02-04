@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api_v1.role.schemas import Role
 from api_v1.user.schemas import User
 from api_v1.userrole import crud
+from api_v1.role.crud import get_role_by_name
 from api_v1.userrole.dependencies import userrole_by_id, has_role
 from api_v1.userrole.schemas import UserRole, UserRoleUpdatePartial, UserRoleCreate
 from core.models import db_helper
@@ -75,7 +76,7 @@ async def give_admin_role(
     user_id: int,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    admin_role = await crud.get_role_by_name(session, "admin")
+    admin_role = await get_role_by_name(session, "admin")
 
     existing_roles = await crud.get_roles_of_user(session, user_id)
     user_role_names = {role.name for role in existing_roles}

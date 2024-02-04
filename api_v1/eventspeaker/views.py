@@ -39,7 +39,7 @@ async def get_eventspeaker(
     # token
     return eventspeaker
 
-
+# here
 @router.post("/{event_id}/add-speakers/", response_model=list[EventSpeaker])
 @has_role(["superadmin", "admin"])
 async def add_speakers_to_event(
