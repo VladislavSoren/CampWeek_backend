@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Path, status
+from fastapi import Depends, HTTPException, Path, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import db_helper, UserRole
@@ -8,7 +8,7 @@ from core.models import db_helper, UserRole
 from functools import wraps
 from typing import Callable, Union
 
-from api_v1.auth.auth_bearer import JWTBearerAccess
+from api_v1.auth.auth_bearer import check_access_token
 from api_v1.userrole import crud
 
 
@@ -26,6 +26,7 @@ async def userrole_by_id(
     )
 
 
+
 def has_role(required_roles: Union[str, list[str]]) -> Callable:
     if isinstance(required_roles, str):
         required_roles = [required_roles]
@@ -33,12 +34,14 @@ def has_role(required_roles: Union[str, list[str]]) -> Callable:
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(
-            access_token: dict = Depends(JWTBearerAccess()),
+            request: Request,
             session: AsyncSession = Depends(db_helper.scoped_session_dependency),
             *args,
             **kwargs,
         ):
-            user_id = access_token["sub"]
+            access_token_str = request.headers.get("Authorization", "")
+            access_token = check_access_token(access_token_str)
+            user_id = access_token.get("sub")
             user_roles = await crud.get_roles_of_user(session, user_id)
             user_role_names = {role.name for role in user_roles}
 

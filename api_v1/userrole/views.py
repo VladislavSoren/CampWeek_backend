@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, Request, status, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -74,6 +74,7 @@ async def get_users_of_role(
 @has_role("superadmin")
 async def give_admin_role(
     user_id: int,
+    request: Request,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     admin_role = await get_role_by_name(session, "admin")

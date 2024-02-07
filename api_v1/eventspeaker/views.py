@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,6 +43,7 @@ async def get_eventspeaker(
 @router.post("/{event_id}/add-speakers/", response_model=list[EventSpeaker])
 @has_role(["superadmin", "admin"])
 async def add_speakers_to_event(
+    request: Request,
     speakers: list[EventSpeakerCreate],
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):

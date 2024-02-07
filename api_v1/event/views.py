@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event import crud
@@ -51,6 +51,7 @@ async def update_event_partial(
 @router.patch("/{event_id}/approve/", response_model=Event)
 @has_role(["superadmin", "admin"])
 async def approve_event(
+    request: Request,
     event_update: EventUpdatePartial,
     event: Event = Depends(event_by_id),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
