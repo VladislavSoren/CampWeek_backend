@@ -46,7 +46,7 @@ class Config(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
     # for form auth URL
-    DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+    DB_URL: str = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{DB_PORT_OUT}/{DB_NAME}"
     DB_ECHO: bool = False
 
     vk_auth_url: str = f"https://oauth.vk.com/authorize?client_id={SOCIAL_AUTH_VK_OAUTH2_KEY}&response_type=code&display=page&v={VK_API_VERSION}"
@@ -67,12 +67,9 @@ class Config(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # pages urls
-    ACCOUNT_PAGE_URL: str = "/"
-
 
 class DevelopmentConfigLocal(Config):
-    pass
+    ACCOUNT_PAGE_URL: str = FRONTEND_URL_LOCAL + "/account"
 
 
 class DevelopmentConfigDocker(Config):
