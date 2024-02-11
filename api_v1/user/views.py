@@ -203,6 +203,14 @@ async def archive_user(
     )
     return {"msg": f"User {user_id} was archived!"}
 
+# for delete?
+from api_v1.user.schemas import Region, RegionCreate
+
+@router.post("/create-region/", response_model=Region)
+async def create_region(region_in: RegionCreate, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+    region = await crud.create_region(session=session, region_in=region_in)
+    return region
+
 
 # @router.get("/{auto_id}/drivers/", response_model=list[Driver])
 # async def get_all_auto_drivers(

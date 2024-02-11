@@ -81,3 +81,14 @@ async def restore_user(session: AsyncSession, user_id):
     stmt = update(User).where(User.id == user_id).values(archived=False)
     await session.execute(stmt)
     await session.commit()
+
+
+
+# for delete?
+from core.models import Region
+from api_v1.user.schemas import RegionCreate
+async def create_region(session: AsyncSession, region_in: RegionCreate) -> Region:
+    region = Region(**region_in.model_dump())
+    session.add(region)
+    await session.commit()
+    return region

@@ -60,8 +60,8 @@ class Config(BaseSettings):
 
     # JWT
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 2
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1 # 10
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 2 # 20
 
     # pages urls
     ACCOUNT_PAGE_URL: str = "/"

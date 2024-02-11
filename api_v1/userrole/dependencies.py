@@ -41,12 +41,12 @@ def has_role(required_roles: Union[str, list[str]]) -> Callable:
         ):
             access_token_str = request.headers.get("Authorization", "")
             access_token = check_access_token(access_token_str)
-            user_id = access_token.get("sub")
+            user_id = int(access_token.get("sub"))
             user_roles = await crud.get_roles_of_user(session, user_id)
             user_role_names = {role.name for role in user_roles}
 
             if any(role in user_role_names for role in required_roles):
-                return await func(*args, session=session, **kwargs)
+                return await func(request=request, *args, session=session, **kwargs)
             else:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
