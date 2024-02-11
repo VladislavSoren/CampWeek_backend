@@ -45,6 +45,13 @@ async def get_role(session: AsyncSession, role_id) -> Role | None:
     return await session.get(Role, role_id)
 
 
+async def get_role_by_name(session: AsyncSession, name: str) -> Role | None:
+    stmt = select(Role).where(Role.name == name)
+    result: Result = await session.execute(stmt)
+    role = result.scalars().first()
+    return role
+
+
 async def update_role(
     role_update: RoleUpdatePartial,
     role: Role,

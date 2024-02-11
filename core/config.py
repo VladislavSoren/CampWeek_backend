@@ -64,8 +64,10 @@ class Config(BaseSettings):
 
     # JWT
     ALGORITHM: str = "HS256"
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 30
+
 
 
 class DevelopmentConfigLocal(Config):

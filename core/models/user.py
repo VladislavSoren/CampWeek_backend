@@ -1,6 +1,7 @@
-import datetime
+from uuid import uuid4
+from datetime import datetime, timedelta
 
-from sqlalchemy import Date, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Date, ForeignKey, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -41,3 +42,4 @@ class User(Base):
     event = relationship("Event", back_populates="creator")
     event_speaker = relationship("EventSpeaker", back_populates="speaker")
     event_visitor = relationship("EventVisitor", back_populates="visitor")
+

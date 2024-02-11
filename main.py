@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 
+from datetime import datetime, timedelta
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,6 +62,7 @@ def index():
 
 
 if __name__ == "__main__":
+
     uvicorn.run("main:app", host="0.0.0.0", port=5777, reload=False, log_level="debug")
 
 #     uvicorn.run("main:app", host="0.0.0.0", port=5777, reload=False, log_level="debug",
@@ -100,3 +101,4 @@ if __name__ == "__main__":
 #     import uvicorn
 #
 #     uvicorn.run(app, host="127.0.0.1", port=5777)
+

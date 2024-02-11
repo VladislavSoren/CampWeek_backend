@@ -32,3 +32,11 @@ class UserUpdatePartial(UserBase):
 class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
+
+
+# for delete?
+class Region(BaseModel):
+    name: str
+
+class RegionCreate(Region):
+    pass

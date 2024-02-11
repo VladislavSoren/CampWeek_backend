@@ -1,14 +1,15 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Path, status
+from fastapi import Depends, HTTPException, Path, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import db_helper, UserRole
 
-from . import crud
-
 from functools import wraps
 from typing import Callable, Union
+
+from api_v1.auth.auth_bearer import check_access_token
+from api_v1.userrole import crud
 
 
 async def userrole_by_id(
@@ -25,6 +26,7 @@ async def userrole_by_id(
     )
 
 
+
 def has_role(required_roles: Union[str, list[str]]) -> Callable:
     if isinstance(required_roles, str):
         required_roles = [required_roles]
@@ -32,16 +34,19 @@ def has_role(required_roles: Union[str, list[str]]) -> Callable:
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(
-            requesting_user_id: int = Depends(userrole_by_id),
+            request: Request,
             session: AsyncSession = Depends(db_helper.scoped_session_dependency),
             *args,
             **kwargs,
         ):
-            user_roles = await crud.get_roles_of_user(session, requesting_user_id)
+            access_token_str = request.headers.get("Authorization", "")
+            access_token = check_access_token(access_token_str)
+            user_id = int(access_token.get("sub"))
+            user_roles = await crud.get_roles_of_user(session, user_id)
             user_role_names = {role.name for role in user_roles}
 
             if any(role in user_role_names for role in required_roles):
-                return await func(*args, session=session, **kwargs)
+                return await func(request=request, *args, session=session, **kwargs)
             else:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
