@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -21,6 +23,23 @@ async def get_events(session: AsyncSession) -> list[Event]:
     return list(events)
 
 
+async def get_actual_events(session: AsyncSession) -> list[Event]:
+    """
+    Actual event:
+    - date_time > current_time
+    - is NOT deleted
+    """
+
+    current_time = datetime.now()
+
+    stmt = select(Event).order_by(Event.id).filter(
+        Event.date_time > current_time
+    )
+    result: Result = await session.execute(stmt)
+    events = result.scalars().all()
+    return list(events)
+
+
 async def get_event(session: AsyncSession, event_id) -> Event | None:
     return await session.get(Event, event_id)
 
@@ -37,7 +56,6 @@ async def update_event(
     await session.commit()
 
     return event
-
 
 # async def get_all_driver_autos(session: AsyncSession, driver_id) -> list[Auto]:
 #     stmt = (

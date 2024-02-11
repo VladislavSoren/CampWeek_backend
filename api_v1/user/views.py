@@ -2,6 +2,7 @@ import datetime
 from typing import Annotated
 
 import requests
+import vk_api
 from fastapi import APIRouter, Depends, Request, status, Response
 from fastapi.params import Path
 
@@ -14,7 +15,7 @@ from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
 from api_v1.user.schemas import User, UserCreate, UserUpdatePartial
 from api_v1.auth.auth_handler import create_access_token, create_refresh_token, decode_refresh_token
-from core.config import settings
+from core.config import settings, ACCESS_MESSAGE_GROUP_TOKEN
 from core.models import db_helper
 
 # router
@@ -75,7 +76,7 @@ async def vk_auth_callback(
 
     # получаем токен доступа
     redirect_uri_with_code = str(request.url).replace("?code", "&code")
-    access_token_url = settings.access_token_url + f"&redirect_uri={redirect_uri_with_code}"
+    access_token_url = settings.access_token_url + f"&redirect_uri={redirect_uri_with_code}" + f"&scope=offline"
     response_token = requests.get(access_token_url)
     access_token_data = response_token.json()
 
@@ -127,7 +128,62 @@ async def vk_auth_callback(
     response.set_cookie(key="access_token", value=create_access_token(created_user.id), httponly=False)
     response.set_cookie(key="refresh_token", value=create_refresh_token(created_user.id), httponly=True)
 
+    # # messages.allowMessagesFromGroup
+    # method_url = "https://api.vk.com/method/messages.allowMessagesFromGroup"
+    # vk_version = f"?v=5.154"
+    # access_token_for_req = f"&access_token={access_token_data['access_token']}"
+    # group_id = f"&group_id=218902339"
+    # scope = "&scope=offline"
+    # user_info_mess_req = method_url + vk_version + group_id + access_token_for_req + scope
+    # user_info_response = requests.get(user_info_mess_req)
+
+    # # Замените на свой токен доступа к API VK
+    # token = 'vk1.a.z7hqPIPHn8yyzSTNktmzzPIJW6pwTYju46PWW7MHQqEMR4IIX5z8BIM7mkvXO3U3MfyYaAABR99TzNyaW0FXDop7mNrw1ymg1-uc5zTZfTm-4DrfHYVr6F1vozOny3W0Z8-3-m86p3mHNOwL-1Z7KWXOrLAgRH-rqhZpCrZbxGRB3twE-_btkgyvPQXJSjuB'
+    # group_id = '218902339'
+    #
+    # # Инициализация VK API
+    # vk_session = vk_api.VkApi(token=token)
+    # vk = vk_session.get_api()
+    #
+    # # Разрешить сообщения от группы
+    # response = vk.messages.allowMessagesFromGroup(group_id=group_id)
+    #
+    # # Проверить ответ
+    # if response == 1:
+    #     print("Сообщения от группы разрешены.")
+    # else:
+    #     print("Ошибка при разрешении сообщений от группы.")
+    #
+    # vk.messages.send()
+
     return response
+
+
+@router.get("/get_mess_from_group/")
+def get_mess_from_group():
+
+    token = ACCESS_MESSAGE_GROUP_TOKEN
+    vk_session = vk_api.VkApi(token=token)
+    # vk_session = vk_api.VkApi()
+    vk = vk_session.get_api()
+    # user_id = 315012844 # P
+    # user_id = 746254612 # Vo
+    # user_id = 161830022 # Vl
+    # user_id = 16524514 # A 13.12.2023 19.20
+    user_id = 25448338  # M 15.12.2023 10.25
+    random_id = 0
+
+    response = vk.messages.send(
+        user_id=user_id,
+        random_id=random_id,
+        message="Ping",
+    )
+
+    return response
+
+
+
+
 
 
 # work!
