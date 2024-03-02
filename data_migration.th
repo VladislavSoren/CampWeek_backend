@@ -1,0 +1,2 @@
+docker cp ./dump.sql campweek_backend-pg-1:/docker-entrypoint-initdb.d/dump.sql
+docker exec -u postgres campweek_backend-pg-1 psql test_migrate_db postgres -f docker-entrypoint-initdb.d/dump.sql
