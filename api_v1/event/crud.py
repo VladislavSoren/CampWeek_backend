@@ -1,10 +1,11 @@
 from datetime import datetime
+from operator import and_
 
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from api_v1.event.schemas import EventCreate, EventUpdatePartial
+from api_v1.event.utils import EventActType
 from core.models import Event
 
 
@@ -32,9 +33,7 @@ async def get_actual_events(session: AsyncSession) -> list[Event]:
 
     current_time = datetime.now()
 
-    stmt = select(Event).order_by(Event.id).filter(
-        Event.date_time > current_time
-    )
+    stmt = select(Event).order_by(Event.id).filter(Event.date_time > current_time)
     result: Result = await session.execute(stmt)
     events = result.scalars().all()
     return list(events)
@@ -49,9 +48,7 @@ async def get_passed_events(session: AsyncSession) -> list[Event]:
 
     current_time = datetime.now()
 
-    stmt = select(Event).order_by(Event.id).filter(
-        Event.date_time < current_time
-    )
+    stmt = select(Event).order_by(Event.id).filter(Event.date_time <= current_time)
     result: Result = await session.execute(stmt)
     events = result.scalars().all()
     return list(events)
@@ -62,10 +59,10 @@ async def get_event(session: AsyncSession, event_id) -> Event | None:
 
 
 async def update_event(
-        event_update: EventUpdatePartial,
-        event: Event,
-        session: AsyncSession,
-        partial: bool = False,
+    event_update: EventUpdatePartial,
+    event: Event,
+    session: AsyncSession,
+    partial: bool = False,
 ) -> Event | None:
     # обновляем атрибуты
     for name, value in event_update.model_dump(exclude_unset=partial).items():
@@ -73,6 +70,30 @@ async def update_event(
     await session.commit()
 
     return event
+
+
+async def get_events_by_creator_id(session: AsyncSession, creator_id, actual_type) -> list[Event] | None:
+    current_time = datetime.now()
+
+    if actual_type == EventActType.actual:
+        filters = and_(
+            Event.date_time > current_time,
+            Event.creator_id == creator_id,
+        )
+    elif actual_type == EventActType.passed:
+        filters = and_(
+            Event.date_time <= current_time,
+            Event.creator_id == creator_id,
+        )
+    else:
+        filters = Event.creator_id == creator_id
+
+    stmt = select(Event).order_by(Event.id).filter(filters)
+    result: Result = await session.execute(stmt)
+    events = result.scalars().all()
+
+    return list(events)
+
 
 # async def get_all_driver_autos(session: AsyncSession, driver_id) -> list[Auto]:
 #     stmt = (
