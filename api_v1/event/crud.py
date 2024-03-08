@@ -18,7 +18,7 @@ async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
     return event
 
 
-async def get_events(session: AsyncSession, actual_type) -> list[Event]:
+async def get_events(session: AsyncSession, actual_type, offset, limit) -> list[Event]:
     current_time = datetime.now()
     current_time = current_time.astimezone(timezone("UTC"))
 
@@ -30,6 +30,7 @@ async def get_events(session: AsyncSession, actual_type) -> list[Event]:
         filters = true()
 
     stmt = select(Event).order_by(Event.date_time.asc(), Event.time_start.asc()).filter(filters)
+    stmt = stmt.offset(offset).limit(limit)
     result: Result = await session.execute(stmt)
     events = result.scalars().all()
 
@@ -54,7 +55,7 @@ async def update_event(
     return event
 
 
-async def get_events_by_creator_id(session: AsyncSession, creator_id, actual_type) -> list[Event] | None:
+async def get_events_by_creator_id(session: AsyncSession, creator_id, actual_type, offset, limit) -> list[Event] | None:
     current_time = datetime.now()
     current_time = current_time.astimezone(timezone("UTC"))
 
@@ -72,6 +73,7 @@ async def get_events_by_creator_id(session: AsyncSession, creator_id, actual_typ
         filters = Event.creator_id == creator_id
 
     stmt = select(Event).order_by(Event.date_time.asc(), Event.time_start.asc()).filter(filters)
+    stmt = stmt.offset(offset).limit(limit)
     result: Result = await session.execute(stmt)
     events = result.scalars().all()
 

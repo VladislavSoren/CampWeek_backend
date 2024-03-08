@@ -24,9 +24,11 @@ async def create_event(
 @router.get("/", response_model=list[Event])
 async def get_events(
     actual_type: EventActType | None = None,
+    offset: int = 0,
+    limit: int = 5,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    events = await crud.get_events(session, actual_type)
+    events = await crud.get_events(session, actual_type, offset, limit)
     return events
 
 
@@ -34,9 +36,11 @@ async def get_events(
 async def get_events_of_creator(
     creator_id: int,
     actual_type: EventActType | None = None,
+    offset: int = 0,
+    limit: int = 5,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    events = await crud.get_events_by_creator_id(session, creator_id, actual_type)
+    events = await crud.get_events_by_creator_id(session, creator_id, actual_type, offset, limit)
 
     return events
 
