@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, Request, status
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.role.schemas import Role
-from api_v1.user.schemas import User
+from api_v1.event.schemas import Event
 from api_v1.eventspeaker import crud
 from api_v1.eventspeaker.dependencies import eventspeaker_by_id
-from api_v1.eventspeaker.schemas import EventSpeaker, EventSpeakerUpdatePartial, EventSpeakerCreate
+from api_v1.eventspeaker.schemas import EventSpeaker, EventSpeakerCreate
 from api_v1.userrole.dependencies import has_role
 from core.models import db_helper
 
@@ -31,13 +29,14 @@ async def get_eventspeakers(
     return await crud.get_eventspeakers(session=session)
 
 
-@router.get("/{obj_id}/", response_model=EventSpeaker)
+@router.get("/{eventspeaker_id}/", response_model=EventSpeaker)
 async def get_eventspeaker(
     eventspeaker: EventSpeaker = Depends(eventspeaker_by_id),
     # token: str = Depends(oauth2_scheme)
 ):
     # token
     return eventspeaker
+
 
 # here
 @router.post("/{event_id}/add-speakers/", response_model=list[EventSpeaker])
@@ -56,6 +55,16 @@ async def add_speakers_to_event(
         added_speakers.append(event_speaker)
 
     return added_speakers
+
+
+@router.get("/{speaker_id}/get-events/", response_model=list[Event])
+async def get_events_of_speaker(
+    speaker_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    events = await crud.get_events_by_speaker_id(session, speaker_id)
+
+    return events
 
 
 #

@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from starlette import status
 
-from api_v1.eventspeaker.schemas import EventSpeakerCreate, EventSpeakerUpdatePartial
-from core.models import EventSpeaker, User, Role
+from api_v1.eventspeaker.schemas import EventSpeakerCreate
+from core.models import Event, EventSpeaker
 
 
 class ExistStatus:
@@ -52,6 +52,16 @@ async def get_eventspeakers(session: AsyncSession) -> list[EventSpeaker]:
 
 async def get_eventspeaker(session: AsyncSession, eventspeaker_id) -> EventSpeaker | None:
     return await session.get(EventSpeaker, eventspeaker_id)
+
+
+async def get_events_by_speaker_id(session: AsyncSession, speaker_id) -> list[Event] | None:
+    stmt = select(EventSpeaker).options(joinedload(EventSpeaker.event)).where(EventSpeaker.speaker_id == speaker_id)
+    result: Result = await session.execute(stmt)
+    objs = result.scalars().all()
+
+    objs_list = [obj.event for obj in objs]
+
+    return objs_list
 
 
 # async def update_userrole(
