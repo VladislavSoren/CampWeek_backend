@@ -1,7 +1,8 @@
 from datetime import datetime
 from operator import and_
 
-from sqlalchemy import Result, select
+from pytz import timezone
+from sqlalchemy import Result, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event.schemas import EventCreate, EventUpdatePartial
@@ -17,40 +18,21 @@ async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
     return event
 
 
-async def get_events(session: AsyncSession) -> list[Event]:
-    stmt = select(Event).order_by(Event.id)
-    result: Result = await session.execute(stmt)
-    events = result.scalars().all()
-    return list(events)
-
-
-async def get_actual_events(session: AsyncSession) -> list[Event]:
-    """
-    Actual event:
-    - date_time > current_time
-    - is NOT deleted
-    """
-
+async def get_events(session: AsyncSession, actual_type) -> list[Event]:
     current_time = datetime.now()
+    current_time = current_time.astimezone(timezone("UTC"))
 
-    stmt = select(Event).order_by(Event.id).filter(Event.date_time > current_time)
+    if actual_type == EventActType.actual:
+        filters = Event.date_time > current_time
+    elif actual_type == EventActType.passed:
+        filters = Event.date_time <= current_time
+    else:
+        filters = true()
+
+    stmt = select(Event).order_by(Event.date_time.asc(), Event.time_start.asc()).filter(filters)
     result: Result = await session.execute(stmt)
     events = result.scalars().all()
-    return list(events)
 
-
-async def get_passed_events(session: AsyncSession) -> list[Event]:
-    """
-    Actual event:
-    - date_time < current_time
-    - is NOT deleted
-    """
-
-    current_time = datetime.now()
-
-    stmt = select(Event).order_by(Event.id).filter(Event.date_time <= current_time)
-    result: Result = await session.execute(stmt)
-    events = result.scalars().all()
     return list(events)
 
 
@@ -74,6 +56,7 @@ async def update_event(
 
 async def get_events_by_creator_id(session: AsyncSession, creator_id, actual_type) -> list[Event] | None:
     current_time = datetime.now()
+    current_time = current_time.astimezone(timezone("UTC"))
 
     if actual_type == EventActType.actual:
         filters = and_(
@@ -88,7 +71,7 @@ async def get_events_by_creator_id(session: AsyncSession, creator_id, actual_typ
     else:
         filters = Event.creator_id == creator_id
 
-    stmt = select(Event).order_by(Event.id).filter(filters)
+    stmt = select(Event).order_by(Event.date_time.asc(), Event.time_start.asc()).filter(filters)
     result: Result = await session.execute(stmt)
     events = result.scalars().all()
 

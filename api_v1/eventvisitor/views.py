@@ -38,7 +38,7 @@ async def get_eventvisitor(
     return eventvisitor
 
 
-@router.get("/{visitor_id}/get-events/", response_model=list[Event])
+@router.get("/events_of/{visitor_id}/", response_model=list[Event])
 async def get_events_of_visitor(
     visitor_id: int,
     actual_type: EventActType | None = None,

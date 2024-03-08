@@ -26,15 +26,19 @@ async def get_events(
     actual_type: EventActType | None = None,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    # if isinstance(actual_type, str):
-    #     actual_type = actual_type.lower().strip()
+    events = await crud.get_events(session, actual_type)
+    return events
 
-    if actual_type == "actual":
-        return await crud.get_actual_events(session=session)
-    elif actual_type == "passed":
-        return await crud.get_passed_events(session=session)
-    else:
-        return await crud.get_events(session=session)
+
+@router.get("/of_creator/{creator_id}", response_model=list[Event])
+async def get_events_of_creator(
+    creator_id: int,
+    actual_type: EventActType | None = None,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    events = await crud.get_events_by_creator_id(session, creator_id, actual_type)
+
+    return events
 
 
 @router.get("/{event_id}/", response_model=Event)
@@ -75,17 +79,6 @@ async def approve_event(
         session=session,
         partial=True,
     )
-
-
-@router.patch("/{creator_id}/get-events/", response_model=list[Event])
-async def get_events_of_creator(
-    creator_id: int,
-    actual_type: EventActType | None = None,
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-):
-    events = await crud.get_events_by_creator_id(session, creator_id, actual_type)
-
-    return events
 
 
 # @router.get("/{driver_id}/autos/", response_model=list[Auto])

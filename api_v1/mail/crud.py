@@ -15,26 +15,27 @@ Two mailings:
 - Make task for mailing for every event
 - Set tyme by hours_shift & minutes_shift
 """
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import vk_api
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+# from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import HTTPException
+
 # from sqlalchemy import Result, select
-from sqlalchemy import Result, select, update, and_
+from sqlalchemy import Result, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 from starlette import status
 
-from api_v1.event.crud import get_actual_events
+from api_v1.event.crud import get_events
+from api_v1.event.utils import EventActType
 from api_v1.eventvisitor.crud import get_event_visitors_id_set
 from api_v1.mail.schemas import AutoEventMailCreate, AutoEventMailUpdatePartial
 from api_v1.user.crud import get_users
 from core.config import ACCESS_MESSAGE_GROUP_TOKEN
-from core.models import AutoEventMail, db_helper, Event, User
+from core.models import AutoEventMail
 from init_global_shedular import global_scheduler
-
 
 # from sqlalchemy.orm import selectinload
 
@@ -79,10 +80,10 @@ async def get_auto_event_mail(session: AsyncSession, auto_event_mail_id) -> Auto
 
 
 async def update_auto_event_mail(
-        auto_event_mail_update: AutoEventMailUpdatePartial,
-        auto_event_mail: AutoEventMail,
-        session: AsyncSession,
-        partial: bool = False,
+    auto_event_mail_update: AutoEventMailUpdatePartial,
+    auto_event_mail: AutoEventMail,
+    session: AsyncSession,
+    partial: bool = False,
 ) -> AutoEventMail | None:
     # обновляем атрибуты
     for name, value in auto_event_mail_update.model_dump(exclude_unset=partial).items():
@@ -115,7 +116,7 @@ async def make_manual_mailing(session, event_mail_task, any_registered):
     users_all_not_archived = await get_users(session)
 
     # Получаем все АКТУАЛЬНЫЕ и НЕ удалённые события
-    events = await get_actual_events(session)
+    events = await get_events(session, actual_type=EventActType.actual)
 
     # Формируем кортеж юзеров, которые зарегестрированы хотя бы на одно событие
     for user in users_all_not_archived:
@@ -136,7 +137,7 @@ async def make_manual_mailing(session, event_mail_task, any_registered):
     if event_mail_task.send_now and event_mail_task.send_datetime is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Only one field must be filled",
+            detail="Only one field must be filled",
         )
 
     if event_mail_task.send_now:
@@ -145,16 +146,17 @@ async def make_manual_mailing(session, event_mail_task, any_registered):
         if event_mail_task.send_datetime is None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"One of the fields must be filled",
+                detail="One of the fields must be filled",
             )
         else:
             task_execute_date = event_mail_task.send_datetime.strftime("%Y-%m-%d %H:%M:%S")
             global_scheduler.add_job(
                 send_mail_by_users,
-                args=[users_for_mail], trigger='date',
+                args=[users_for_mail],
+                trigger="date",
                 run_date=task_execute_date,
                 misfire_grace_time=60,  # sec
-                id=f'manual_{task_execute_date}',
+                id=f"manual_{task_execute_date}",
                 replace_existing=True,
             )
             global_scheduler.print_jobs()
@@ -175,7 +177,6 @@ async def send_mail_by_users(users):
     vk = vk_session.get_api()
 
     for user in users:
-
         message = f"first_name - {user.first_name}\nlast_name - {user.last_name}\n"
         message = f"{message}\nВремя отправления - {current_time}"
 
@@ -183,7 +184,7 @@ async def send_mail_by_users(users):
 
         random_id = 0
         try:
-            response = vk.messages.send(
+            vk.messages.send(
                 user_id=user_id,
                 random_id=random_id,
                 message=message,

@@ -58,7 +58,7 @@ async def add_speakers_to_event(
     return added_speakers
 
 
-@router.get("/{speaker_id}/get-events/", response_model=list[Event])
+@router.get("/events_of/{speaker_id}/", response_model=list[Event])
 async def get_events_of_speaker(
     speaker_id: int,
     actual_type: EventActType | None = None,
