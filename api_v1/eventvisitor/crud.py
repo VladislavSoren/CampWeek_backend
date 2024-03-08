@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from starlette import status
 
-from api_v1.eventvisitor.schemas import EventVisitorCreate, EventVisitorUpdatePartial
-from core.models import EventVisitor, User, Role
+from api_v1.eventvisitor.schemas import EventVisitorCreate
+from core.models import Event, EventVisitor
 
 
 class ExistStatus:
@@ -61,6 +61,17 @@ async def get_event_visitors_id_set(session: AsyncSession, event_id) -> set[int]
 
     users_id_set = {obj.visitor_id for obj in objs}
     return users_id_set
+
+
+async def get_events_by_visitor_id(session: AsyncSession, visitor_id) -> list[Event] | None:
+    stmt = select(EventVisitor).options(joinedload(EventVisitor.event)).where(EventVisitor.visitor_id == visitor_id)
+    result: Result = await session.execute(stmt)
+    objs = result.scalars().all()
+
+    objs_list = [obj.event for obj in objs]
+
+    return objs_list
+
 
 # async def update_userrole(
 #         userrole_update: UserRoleUpdatePartial,

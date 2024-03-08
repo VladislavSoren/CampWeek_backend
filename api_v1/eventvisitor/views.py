@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, status
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.role.schemas import Role
-from api_v1.user.schemas import User
+from api_v1.event.schemas import Event
 from api_v1.eventvisitor import crud
 from api_v1.eventvisitor.dependencies import eventvisitor_by_id
-from api_v1.eventvisitor.schemas import EventVisitor, EventVisitorUpdatePartial, EventVisitorCreate
+from api_v1.eventvisitor.schemas import EventVisitor, EventVisitorCreate
 from core.models import db_helper
 
 # router
@@ -30,13 +28,23 @@ async def get_eventvisitors(
     return await crud.get_eventvisitors(session=session)
 
 
-@router.get("/{obj_id}/", response_model=EventVisitor)
+@router.get("/{event_id}/", response_model=EventVisitor)
 async def get_eventvisitor(
     eventvisitor: EventVisitor = Depends(eventvisitor_by_id),
     # token: str = Depends(oauth2_scheme)
 ):
     # token
     return eventvisitor
+
+
+@router.get("/{visitor_id}/get-events/", response_model=list[Event])
+async def get_events_of_visitor(
+    visitor_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    events = await crud.get_events_by_visitor_id(session, visitor_id)
+
+    return events
 
 
 # @router.patch("/{obj_id}/", response_model=UserRole)
