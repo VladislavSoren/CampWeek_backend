@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event.schemas import Event
+from api_v1.event.views import EventActType
 from api_v1.eventspeaker import crud
 from api_v1.eventspeaker.dependencies import eventspeaker_by_id
 from api_v1.eventspeaker.schemas import EventSpeaker, EventSpeakerCreate
@@ -60,9 +61,10 @@ async def add_speakers_to_event(
 @router.get("/{speaker_id}/get-events/", response_model=list[Event])
 async def get_events_of_speaker(
     speaker_id: int,
+    actual_type: EventActType | None = None,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    events = await crud.get_events_by_speaker_id(session, speaker_id)
+    events = await crud.get_events_by_speaker_id(session, speaker_id, actual_type)
 
     return events
 

@@ -1,10 +1,14 @@
+from datetime import datetime
+
 from fastapi import HTTPException
+from pytz import timezone
 from sqlalchemy import Result, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from starlette import status
 
+from api_v1.event.views import EventActType
 from api_v1.eventvisitor.schemas import EventVisitorCreate
 from core.models import Event, EventVisitor
 
@@ -63,12 +67,20 @@ async def get_event_visitors_id_set(session: AsyncSession, event_id) -> set[int]
     return users_id_set
 
 
-async def get_events_by_visitor_id(session: AsyncSession, visitor_id) -> list[Event] | None:
+async def get_events_by_visitor_id(session: AsyncSession, visitor_id, actual_type) -> list[Event] | None:
+    current_time = datetime.now()
+    current_time = current_time.astimezone(timezone("UTC"))
+
     stmt = select(EventVisitor).options(joinedload(EventVisitor.event)).where(EventVisitor.visitor_id == visitor_id)
     result: Result = await session.execute(stmt)
     objs = result.scalars().all()
 
-    objs_list = [obj.event for obj in objs]
+    if actual_type == EventActType.actual:
+        objs_list = [obj.event for obj in objs if obj.event.date_time > current_time]
+    elif actual_type == EventActType.passed:
+        objs_list = [obj.event for obj in objs if obj.event.date_time <= current_time]
+    else:
+        objs_list = [obj.event for obj in objs]
 
     return objs_list
 

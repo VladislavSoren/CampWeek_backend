@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event.schemas import Event
+from api_v1.event.views import EventActType
 from api_v1.eventvisitor import crud
 from api_v1.eventvisitor.dependencies import eventvisitor_by_id
 from api_v1.eventvisitor.schemas import EventVisitor, EventVisitorCreate
@@ -40,9 +41,10 @@ async def get_eventvisitor(
 @router.get("/{visitor_id}/get-events/", response_model=list[Event])
 async def get_events_of_visitor(
     visitor_id: int,
+    actual_type: EventActType | None = None,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    events = await crud.get_events_by_visitor_id(session, visitor_id)
+    events = await crud.get_events_by_visitor_id(session, visitor_id, actual_type)
 
     return events
 
