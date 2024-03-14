@@ -33,11 +33,20 @@ from api_v1.event.utils import EventActType
 from api_v1.eventvisitor.crud import get_event_visitors_id_set
 from api_v1.mail.schemas import AutoEventMailCreate, AutoEventMailUpdatePartial
 from api_v1.user.crud import get_users
-from core.config import ACCESS_MESSAGE_GROUP_TOKEN
-from core.models import AutoEventMail
+from core.crypto import decrypt_message, load_key
+from core.models import AutoEventMail, GroupVK, User, db_helper
 from init_global_shedular import global_scheduler
 
 # from sqlalchemy.orm import selectinload
+
+
+class CustomVkApi(vk_api.VkApi):
+    def __init__(self, group_name=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.group_name = group_name
+
+    def get_group_name(self):
+        return self.group_name
 
 
 class ExistStatus:
@@ -110,8 +119,6 @@ async def make_manual_mailing(session, event_mail_task, any_registered):
 
     users_registered_set = set()
 
-    # async with db_helper.async_session_factory() as session:
-
     # Получаем всех НЕ удалённых юзеров
     users_all_not_archived = await get_users(session)
 
@@ -161,33 +168,119 @@ async def make_manual_mailing(session, event_mail_task, any_registered):
             )
             global_scheduler.print_jobs()
 
-    # current_time = datetime.now()
-    # task_execute_date = (current_time + timedelta(
-    #     minutes=1
-    # ))
 
+async def send_mail_by_users(target_users=None):
+    # Получаем множество vk_id целевой аудитории для сравнения с выборками из БД
+    target_users_id = {obj.vk_id for obj in target_users}
 
-async def send_mail_by_users(users):
-    print("send_mail_by_users_id(users_id)")
+    async with db_helper.async_session_factory() as session:
+        # Подгружаем ключ для расшифровки токенов
+        key = load_key()
 
-    current_time = datetime.now()
+        # получаем токены из БД
+        stmt = select(GroupVK)
+        result: Result = await session.execute(stmt)
+        groups = result.scalars().all()
 
-    token = ACCESS_MESSAGE_GROUP_TOKEN
-    vk_session = vk_api.VkApi(token=token)
-    vk = vk_session.get_api()
+        session_users_dict = {}
+        for group in groups:
+            # Получаем всех юзеров группы с данным токеном
+            stmt = select(User).where(User.vk_group == group.name)
+            result: Result = await session.execute(stmt)
+            users = result.scalars().all()
 
-    for user in users:
-        message = f"first_name - {user.first_name}\nlast_name - {user.last_name}\n"
-        message = f"{message}\nВремя отправления - {current_time}"
+            # Если на вход были поданы целевые юзеры -> находим целевых входящих в текущую группу
+            if target_users:
+                users_id = {obj.vk_id for obj in users}
+                users_id_union = target_users_id & users_id
+                users = {obj for obj in users if obj.vk_id in users_id_union}
 
-        user_id = user.vk_id
+            # Создаём объект API VK в рамках сессии текущего токена
+            token_decrypt = decrypt_message(group.token, key)
+            vk_session = CustomVkApi(token=token_decrypt, group_name=group.name)
 
-        random_id = 0
-        try:
-            vk.messages.send(
-                user_id=user_id,
-                random_id=random_id,
-                message=message,
-            )
-        except vk_api.exceptions.ApiError as e:
-            print(e)
+            # Наполняем словарь "сессия": "юзеры"
+            session_users_dict[vk_session] = users
+
+        # Делаем рассылку по группам юзеров в рамках "подходящих" для них сессий
+        for vk_session, users in session_users_dict.items():
+            vk = vk_session.get_api()
+
+            # Проходимся по всем юзерам в рамках "актуальной" для него группы
+            for user in users:
+                # if user.vk_group == None:
+                user_id = user.vk_id
+
+                current_time = datetime.now()
+                message = f"first_name - {user.first_name}\nlast_name - {user.last_name}\n"
+                message = f"{message}\nВремя отправления - {current_time}"
+
+                random_id = 0
+                try:
+                    vk.messages.send(
+                        user_id=user_id,
+                        random_id=random_id,
+                        message=message,
+                    )
+                except vk_api.exceptions.ApiError as e:
+                    print(e)  # [5] User authorization failed: invalid access_token (4).
+                    for vk_session_loc in session_users_dict.keys():
+                        vk_loc = vk_session_loc.get_api()
+
+                        try:
+                            vk_loc.messages.send(
+                                user_id=user_id,
+                                random_id=random_id,
+                                message=message,
+                            )
+                            # Записываем юзеру токен данной сессии
+                            user.vk_group = vk_session_loc.get_group_name()
+
+                        except vk_api.exceptions.ApiError as e:
+                            print(e)
+                            user.vk_group = None
+                            continue
+                        finally:
+                            await session.commit()
+
+        # получаем юзеров без токенов
+        stmt = select(User).where(User.vk_group == None)
+        result: Result = await session.execute(stmt)
+        users = result.scalars().all()
+
+        # Если на вход были поданы целевые юзеры
+        if target_users:
+            users_id = {obj.vk_id for obj in users}
+            users_id_union = target_users_id & users_id
+            users = {obj for obj in users if obj.vk_id in users_id_union}
+
+        for vk_session_loc in session_users_dict.keys():
+            vk_loc = vk_session_loc.get_api()
+
+            # Несколькими сессиями проходимся по одной кучке юзеров
+            for user in users:
+                user_id = user.vk_id
+
+                # И скипаем те которым проставились группы
+                if user.vk_group == None:
+                    current_time = datetime.now()
+                    message = f"first_name - {user.first_name}\nlast_name - {user.last_name}\n"
+                    message = f"{message}\nВремя отправления - {current_time}"
+
+                    random_id = 0
+
+                    try:
+                        vk_loc.messages.send(
+                            user_id=user_id,
+                            random_id=random_id,
+                            message=message,
+                        )
+                        # Записываем юзеру токен данной сессии
+                        user.vk_group = vk_session_loc.get_group_name()
+
+                    except vk_api.exceptions.ApiError as e:
+                        print(e)
+                        user.vk_group = None
+                        continue
+                    finally:
+                        await session.commit()

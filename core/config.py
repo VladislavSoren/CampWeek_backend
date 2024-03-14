@@ -29,10 +29,12 @@ BACKEND_URL_PROD = os.getenv("BACKEND_URL_PROD")
 # JWT
 SECRET_KEY_JWT = os.getenv("SECRET_KEY_JWT")
 REFRESH_SECRET_KEY_JWT = os.getenv("REFRESH_SECRET_KEY_JWT")
-# PROTOCOL = os.getenv("PROTOCOL")
 
 # VK
-ACCESS_MESSAGE_GROUP_TOKEN = os.getenv("ACCESS_MESSAGE_GROUP_TOKEN")
+GROUP_TOKEN_DICT = {
+    "ACCESS_MESSAGE_GROUP_TOKEN_0": os.getenv("ACCESS_MESSAGE_GROUP_TOKEN_0"),
+    "ACCESS_MESSAGE_GROUP_TOKEN_1": os.getenv("ACCESS_MESSAGE_GROUP_TOKEN_1"),
+}
 
 
 class Config(BaseSettings):
@@ -67,7 +69,6 @@ class Config(BaseSettings):
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 30
-
 
 
 class DevelopmentConfigLocal(Config):

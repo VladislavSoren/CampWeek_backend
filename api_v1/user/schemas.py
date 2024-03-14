@@ -11,7 +11,7 @@ class UserBase(BaseModel):
     city: str | None = Field(max_length=100)
     bdate: datetime.date | None
     region_id: int | None = Field(ge=0, default=None)
-    vk_group: str = Field(max_length=100)
+    vk_group: str | None = Field(max_length=100)
     archived: bool | None = Field(default=False)
 
 

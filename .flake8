@@ -3,6 +3,8 @@ max-complexity=10
 max-line-length=127
 extend-ignore =
     E203,
+    E711,
+    C901,
 exclude =
     migrations,
     __pycache__,

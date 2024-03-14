@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 import uvicorn
@@ -9,16 +8,13 @@ from sqlalchemy import Result, select
 from api_v1 import router as router_v1
 from api_v1.groupvk.schemas import GroupVKCreate
 from api_v1.mail.auto_event_mail import make_periodical_tasks
-from core.config import settings
+from core.config import GROUP_TOKEN_DICT, settings
 from core.crypto import encrypt_message, generate_key, load_key
 from core.models import GroupVK, db_helper
 from init_global_shedular import global_scheduler
 
 # from starlette.middleware.cors import CORSMiddleware as CORSMiddleware
 
-
-# VK
-ACCESS_MESSAGE_GROUP_TOKEN_0 = os.getenv("ACCESS_MESSAGE_GROUP_TOKEN_0")
 
 app = FastAPI()
 
@@ -44,15 +40,11 @@ async def load_schedule_or_create_blank():
 
     # Наполняем таблицу GroupVK зашифрованных токенами
     async with db_helper.async_session_factory() as session:
-        groups_env = {
-            "ACCESS_MESSAGE_GROUP_TOKEN_0": ACCESS_MESSAGE_GROUP_TOKEN_0,
-        }
-
         stmt = select(GroupVK.name)
         result: Result = await session.execute(stmt)
         groups_bd = result.scalars().all()
 
-        for name, token in groups_env.items():
+        for name, token in GROUP_TOKEN_DICT.items():
             if name not in set(groups_bd):
                 new_obj = GroupVKCreate(name=name, token=encrypt_message(token, key).decode())
 
@@ -95,41 +87,3 @@ def index():
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=5777, reload=False, log_level="debug")
-
-
-#     uvicorn.run("main:app", host="0.0.0.0", port=5777, reload=False, log_level="debug",
-#                 workers=1, limit_concurrency=1, limit_max_requests=1)
-
-
-# from fastapi import FastAPI
-#
-# from init_shed_test import scheduler
-#
-# app = FastAPI()
-#
-#
-# async def my_job():
-#     print("Job executed!")
-#
-#
-# @app.on_event("startup")
-# async def startup_event():
-#     scheduler.add_job(my_job, 'interval', seconds=5)
-#     scheduler.start()
-#     scheduler.print_jobs()
-#
-#
-# @app.on_event("shutdown")
-# async def shutdown_event():
-#     scheduler.shutdown()
-#
-#
-# @app.get("/")
-# async def read_root():
-#     return {"message": "Hello, World!"}
-#
-#
-# if __name__ == "__main__":
-#     import uvicorn
-#
-#     uvicorn.run(app, host="127.0.0.1", port=5777)
