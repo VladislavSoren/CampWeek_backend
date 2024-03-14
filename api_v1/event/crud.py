@@ -18,7 +18,7 @@ async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
     return event
 
 
-async def get_events(session: AsyncSession, actual_type, offset, limit) -> list[Event]:
+async def get_events(session: AsyncSession, actual_type, offset=0, limit=10) -> list[Event]:
     current_time = datetime.now()
     current_time = current_time.astimezone(timezone("UTC"))
 
