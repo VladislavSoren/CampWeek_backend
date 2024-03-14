@@ -12,3 +12,6 @@ https://dev.vk.com/ru/method/database.getCities
 
 VK.com (former Vkontakte):
 https://python-social-auth.readthedocs.io/en/latest/backends/vk.html
+
+# DatabaseCrypt
+https://github.com/sqlalchemy/sqlalchemy/wiki/DatabaseCrypt
