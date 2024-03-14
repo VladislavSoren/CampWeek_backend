@@ -1,7 +1,6 @@
-from uuid import uuid4
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from sqlalchemy import Date, ForeignKey, Integer, String, Boolean, DateTime
+from sqlalchemy import Boolean, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
@@ -31,6 +30,8 @@ class User(Base):
     city: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     bdate: Mapped[datetime.date] = mapped_column(Date(), nullable=True, unique=False)
 
+    vk_group: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
+
     archived: Mapped[bool] = mapped_column(Boolean(), nullable=True, default=False)
 
     # ForeignKeys
@@ -42,4 +43,3 @@ class User(Base):
     event = relationship("Event", back_populates="creator")
     event_speaker = relationship("EventSpeaker", back_populates="speaker")
     event_visitor = relationship("EventVisitor", back_populates="visitor")
-

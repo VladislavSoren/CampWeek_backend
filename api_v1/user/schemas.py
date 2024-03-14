@@ -11,6 +11,7 @@ class UserBase(BaseModel):
     city: str | None = Field(max_length=100)
     bdate: datetime.date | None
     region_id: int | None = Field(ge=0, default=None)
+    vk_group: str = Field(max_length=100)
     archived: bool | None = Field(default=False)
 
 
@@ -25,6 +26,7 @@ class UserUpdatePartial(UserBase):
     sex: int | None = None
     city: str | None = None
     bdate: datetime.date | None = None
+    vk_group: str | None = None
     region_id: int | None = None
     archived: bool | None = None
 
@@ -37,6 +39,7 @@ class User(UserBase):
 # for delete?
 class Region(BaseModel):
     name: str
+
 
 class RegionCreate(Region):
     pass
