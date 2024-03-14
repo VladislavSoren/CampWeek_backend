@@ -10,6 +10,7 @@ __all__ = (
     "EventSpeaker",
     "EventVisitor",
     "AutoEventMail",
+    "GroupVK",
 )
 
 # Base import must be first (to escape ImportError: circular import)
@@ -22,3 +23,4 @@ from .role import Role, UserRole
 from .region import Region
 from .event import Event, EventSpeaker, EventVisitor
 from .mail import AutoEventMail
+from .group_vk import GroupVK
