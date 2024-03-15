@@ -5,7 +5,8 @@ repos:
     rev: v3.2.0
     hooks:
       - id: trailing-whitespace
-#      - id: end-of-file-fixer
+      - id: end-of-file-fixer
+        files: ^(?!(.*\.txt)$).*
       - id: check-yaml
       - id: check-added-large-files
       - id: check-toml
