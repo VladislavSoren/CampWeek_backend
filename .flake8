@@ -16,3 +16,4 @@ exclude =
     .venv,
     sup_script.py,
     config.py,
+    requirements.txt,
