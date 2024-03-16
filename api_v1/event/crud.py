@@ -18,16 +18,28 @@ async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
     return event
 
 
-async def get_events(session: AsyncSession, actual_type, offset=0, limit=10) -> list[Event]:
+async def get_events(session: AsyncSession, actual_type, offset=0, limit=10, region_ids: str = None) -> list[Event]:
     current_time = datetime.now()
     current_time = current_time.astimezone(timezone("UTC"))
 
     if actual_type == EventActType.actual:
-        filters = Event.date_time > current_time
+        filter_type = Event.date_time > current_time
     elif actual_type == EventActType.passed:
-        filters = Event.date_time <= current_time
+        filter_type = Event.date_time <= current_time
     else:
-        filters = true()
+        filter_type = true()
+
+    if region_ids:
+        region_ids_list = region_ids.split(";")
+        region_ids_list = [int(reg_id) for reg_id in region_ids_list]
+        filter_reg = Event.region_id == region_ids_list[0]
+        for region_id in region_ids_list[1:]:
+            filter_reg = filter_reg | (Event.region_id == region_id)
+    else:
+        filter_reg = true()
+
+    # Объединяем фильтры
+    filters = filter_type & filter_reg
 
     stmt = select(Event).order_by(Event.date_time.asc(), Event.time_start.asc()).filter(filters)
     stmt = stmt.offset(offset).limit(limit)

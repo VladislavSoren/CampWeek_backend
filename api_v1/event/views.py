@@ -23,12 +23,14 @@ async def create_event(
 
 @router.get("/", response_model=list[Event])
 async def get_events(
+    # request: Request,
     actual_type: EventActType | None = None,
     offset: int = 0,
     limit: int = 5,
+    region_ids: str | None = None,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    events = await crud.get_events(session, actual_type, offset, limit)
+    events = await crud.get_events(session, actual_type, offset, limit, region_ids)
     return events
 
 
