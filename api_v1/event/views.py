@@ -27,10 +27,11 @@ async def get_events(
     actual_type: EventActType | None = None,
     offset: int = 0,
     limit: int = 5,
+    approved: bool = False,
     region_ids: str | None = None,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    events = await crud.get_events(session, actual_type, offset, limit, region_ids)
+    events = await crud.get_events(session, actual_type, offset, limit, approved, region_ids)
     return events
 
 

@@ -18,10 +18,11 @@ async def create_event(session: AsyncSession, event_in: EventCreate) -> Event:
     return event
 
 
-async def get_events(session: AsyncSession, actual_type, offset=0, limit=10, region_ids: str = None) -> list[Event]:
+async def get_events(session: AsyncSession, actual_type, offset, limit, approved, region_ids) -> list[Event]:
     current_time = datetime.now()
     current_time = current_time.astimezone(timezone("UTC"))
 
+    # Фильтр актуальности события
     if actual_type == EventActType.actual:
         filter_type = Event.date_time > current_time
     elif actual_type == EventActType.passed:
@@ -29,6 +30,10 @@ async def get_events(session: AsyncSession, actual_type, offset=0, limit=10, reg
     else:
         filter_type = true()
 
+    # Фильтр по approved
+    filter_approved = Event.approved == approved
+
+    # Фильтр по регионам
     if region_ids:
         region_ids_list = region_ids.split(";")
         region_ids_list = [int(reg_id) for reg_id in region_ids_list]
@@ -39,7 +44,7 @@ async def get_events(session: AsyncSession, actual_type, offset=0, limit=10, reg
         filter_reg = true()
 
     # Объединяем фильтры
-    filters = filter_type & filter_reg
+    filters = filter_type & filter_reg & filter_approved
 
     stmt = select(Event).order_by(Event.date_time.asc(), Event.time_start.asc()).filter(filters)
     stmt = stmt.offset(offset).limit(limit)
