@@ -8,10 +8,10 @@ class EventBase(BaseModel):
     link: str
     add_link: str
     date_time: datetime
-    time_start: str
-    time_end: str
-    is_reg_needed: bool
-    approved: bool
+    time_start: str = "20:00"
+    time_end: str = "21:00"
+    is_reg_needed: bool = True
+    approved: bool = False
     description: str
     add_info: str
     notes: str
