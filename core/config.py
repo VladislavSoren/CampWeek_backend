@@ -63,6 +63,7 @@ class Config(BaseSettings):
     eventspeaker_prefix: str = "/eventspeaker"
     eventvisitor_prefix: str = "/eventvisitor"
     mail_prefix: str = "/mail"
+    region_prefix: str = "/region"
 
     # JWT
     ALGORITHM: str = "HS256"
