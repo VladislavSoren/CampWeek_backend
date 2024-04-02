@@ -2,7 +2,7 @@ from datetime import datetime
 
 from fastapi import HTTPException
 from pytz import timezone
-from sqlalchemy import Result, select
+from sqlalchemy import Result, and_, delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -83,6 +83,22 @@ async def get_events_by_visitor_id(session: AsyncSession, visitor_id, actual_typ
         objs_list = [obj.event for obj in objs]
 
     return objs_list
+
+
+async def delete_obj(session: AsyncSession, event_id, user_id):
+    stmt = (
+        delete(EventVisitor)
+        .where(
+            and_(
+                EventVisitor.visitor_id == user_id,
+                EventVisitor.event_id == event_id,
+            )
+        )
+        .returning(EventVisitor.id)
+    )
+    deleted_obj_id = await session.execute(stmt)
+    await session.commit()
+    return deleted_obj_id
 
 
 # async def update_userrole(

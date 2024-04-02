@@ -1,4 +1,7 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
+from fastapi.params import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.event.schemas import Event
@@ -49,20 +52,20 @@ async def get_events_of_visitor(
     return events
 
 
-# @router.patch("/{obj_id}/", response_model=UserRole)
-# async def update_userrole_partial(
-#         userrole_update: UserRoleUpdatePartial,
-#         userrole: UserRole = Depends(userrole_by_id),
-#         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-# ):
-#     return await crud.update_userrole(
-#         userrole_update=userrole_update,
-#         userrole=userrole,
-#         session=session,
-#         partial=True,
-#     )
-#
-#
+@router.delete("/{event_id}/{user_id}/", response_model=dict)
+async def delete(
+    event_id: Annotated[int, Path],
+    user_id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    await crud.delete_obj(
+        session=session,
+        event_id=event_id,
+        user_id=user_id,
+    )
+    return {"msg": f"User {user_id} was deleted from event {event_id}."}
+
+
 # @router.get("/roles_of_user/{user_id}", response_model=list[Role])
 # async def get_roles_of_user(
 #         user_id: int,
