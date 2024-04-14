@@ -31,7 +31,10 @@ async def get_events(session: AsyncSession, actual_type, offset, limit, approved
         filter_type = true()
 
     # Фильтр по approved
-    filter_approved = Event.approved == approved
+    if approved is not None:
+        filter_approved = Event.approved == approved
+    else:
+        filter_approved = true()
 
     # Фильтр по регионам
     if region_ids:

@@ -27,7 +27,7 @@ async def get_events(
     actual_type: EventActType | None = None,
     offset: int = 0,
     limit: int = 5,
-    approved: bool = False,
+    approved: bool = None,
     region_ids: str | None = None,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
