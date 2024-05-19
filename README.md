@@ -16,6 +16,7 @@
 ### Инструкции по запуску:
 1. `cd <Абсолютный путь к директории CampWeek_backend>`
 2.  `docker compose -f docker-compose.dev.yml run --name campweek_backend_api --service-ports -d app`
+3. Data migration command `bash data_migration.th`
 * Полезные команды находятся в `instructions/docker.txt`
 
 ### Важные моменты:
