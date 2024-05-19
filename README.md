@@ -1,4 +1,4 @@
-## Backend API для сервиса CampWeek_backend
+## Backend API для сервиса CampWeek
 
 ### Стек: `Fastapi`, `PostgreSQL`, `SQLAlchemy`, `Alembic`.
 
