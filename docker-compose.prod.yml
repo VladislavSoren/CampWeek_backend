@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: ./Dockerfile
       context: ./
-#    restart: "always"
+    restart: "always"
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     depends_on:
       - pg
@@ -22,7 +22,7 @@ services:
 
   pg:
     image: postgres
-#    restart: "always"
+    restart: "always"
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
