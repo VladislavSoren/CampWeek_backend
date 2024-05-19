@@ -1,15 +1,15 @@
-## CarPark API на FastAPI
+## Backend API для сервиса CampWeek_backend
 
 ### Стек: `Fastapi`, `PostgreSQL`, `SQLAlchemy`, `Alembic`.
 
 ### Схема БД:
-![img.png](readme_static%2Fimg.png)
+![1_scheme.png](readme_static%2F1_scheme.png)
 
 ### Основная функциональность:
-- `User`:
-    - Регистрация юзера через профиль VK: http://127.0.0.1:8080/api/v1/user/vk_auth_start/
-    - Получение всех юзеров: http://127.0.0.1:8080/api/v1/user/
-    - Получение юзера по id http://127.0.0.1:8080/api/v1/user/1/ # id=1
+- Регистрация юзера через ВК
+- Личный кабинет юзера (данные подтягивается из ВК) с возможностью изменения в нём информации
+- КРУД для ролей
+
 * Интерактивная документация: http://127.0.0.1:8080/docs
 
 
