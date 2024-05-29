@@ -18,3 +18,6 @@ docker exec -u postgres campweek_backend-pg-1 psql test_migrate_db postgres -f d
 bash data_migration.th
 
 docker compose -f docker-compose.prod.yml run --service-ports -d pg
+
+### Важные моменты:
+Если при сборке образа будет ошибка, то попробуйте удалить "�" в конце `requirements.txt`
