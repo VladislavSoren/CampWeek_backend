@@ -3,7 +3,7 @@
 ### Стек: `Fastapi`, `PostgreSQL`, `SQLAlchemy`, `Alembic`.
 
 ### Схема БД:
-<img src="readme_static/1_scheme.png" width="700">
+<img src="readme_static/img_1.png" width="700">
 
 ### Основная функциональность сервиса:
 - Регистрация юзера через ВК
