@@ -21,3 +21,10 @@ docker compose -f docker-compose.prod.yml run --service-ports -d pg
 
 ### Важные моменты:
 Если при сборке образа будет ошибка, то попробуйте удалить "�" в конце `requirements.txt`
+
+
+### Make restart always
+docker update --restart always campweek_backend_api
+docker update --restart always campweek_backend-pg-1
+docker update --restart always campweek_front
+
