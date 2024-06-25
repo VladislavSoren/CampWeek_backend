@@ -82,7 +82,7 @@ async def shutdown_event():
 
 @app.get("/")
 def index():
-    return {"Ping to the service root was successful!"}
+    return "Ping to the service root was successful!"
 
 
 if __name__ == "__main__":
