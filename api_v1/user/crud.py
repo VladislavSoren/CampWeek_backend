@@ -3,9 +3,10 @@ from sqlalchemy import Result, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.user.schemas import UserCreate, UserUpdatePartial
-from core.models import User
+from api_v1.user.schemas import RegionCreate, UserCreate, UserUpdatePartial
 
+# for delete?
+from core.models import Region, User
 
 # from sqlalchemy.orm import selectinload
 
@@ -83,10 +84,6 @@ async def restore_user(session: AsyncSession, user_id):
     await session.commit()
 
 
-
-# for delete?
-from core.models import Region
-from api_v1.user.schemas import RegionCreate
 async def create_region(session: AsyncSession, region_in: RegionCreate) -> Region:
     region = Region(**region_in.model_dump())
     session.add(region)
