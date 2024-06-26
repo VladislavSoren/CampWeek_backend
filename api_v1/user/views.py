@@ -17,13 +17,7 @@ from api_v1.auth.auth_handler import (
 )
 from api_v1.user import crud
 from api_v1.user.dependencies import user_by_id
-from api_v1.user.schemas import (
-    Region,
-    RegionCreate,
-    User,
-    UserCreate,
-    UserUpdatePartial,
-)
+from api_v1.user.schemas import User, UserCreate, UserUpdatePartial
 from core.config import settings
 from core.models import db_helper
 
@@ -203,9 +197,3 @@ async def user_archive(
         session=session,
     )
     return {"msg": f"User {user_id} was archived!"}
-
-
-@router.post("/create-region/", response_model=Region)
-async def create_region(region_in: RegionCreate, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    region = await crud.create_region(session=session, region_in=region_in)
-    return region
