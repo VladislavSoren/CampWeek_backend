@@ -89,29 +89,28 @@ async def test_create_user():
         assert test_user == test_user_from_db
 
 
-# # Проверка восстановления архивного юзера
-# @pytest.mark.asyncio(scope="session")
-# # @pytest.mark.asyncio
-# async def test_get_user():
-#     async with db_helper.async_session_factory() as session:
-#         # Создаём архивного юзера
-#         await create_test_user_archived(session)
-#
-#         # Получаем id созданного юзера
-#         user_id = (await get_user_by_vk_id(session)).id
-#
-#         # Получаем словарь с атрибутами юзера
-#         async with AsyncClient(app=app, base_url=base_test_url) as ac:
-#             response = await ac.patch(f"{prefix}/{user_id}/restore/")
-#         json_string = response.content.decode("utf-8")
-#         user_response = json.loads(json_string)
-#
-#         # Проверки
-#         assert response.status_code == 200
-#         assert user_response["archived"] is False
-#
-#         # Чисти базу от тестовых данных
-#         await delete_user_by_vk_id(session)
+# Проверка восстановления архивного юзера
+@pytest.mark.asyncio(scope="session")
+async def test_get_user():
+    async with db_helper.async_session_factory() as session:
+        # Создаём архивного юзера
+        await create_test_user(session)
+
+        # Получаем id созданного юзера
+        user_id = (await get_user_by_vk_id(session)).id
+
+        # Получаем словарь с атрибутами юзера
+        async with AsyncClient(app=app, base_url=base_test_url) as ac:
+            response = await ac.get(f"{prefix}/{user_id}/")
+        json_string = response.content.decode("utf-8")
+        user_response = json.loads(json_string)
+
+        # Проверки
+        assert response.status_code == 200
+        assert user_response["id"] == user_id
+
+        # Чисти базу от тестовых данных
+        await delete_user_by_vk_id(session)
 
 
 # Проверка восстановления архивного юзера
