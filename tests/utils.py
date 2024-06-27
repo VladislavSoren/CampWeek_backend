@@ -26,7 +26,7 @@ class TestEventOk:
 
     time_end: str = "13:00"
     is_reg_needed: bool = True
-    approved: bool = True
+    approved: bool = False
     description: str = "1"
     add_info: str = "1"
 

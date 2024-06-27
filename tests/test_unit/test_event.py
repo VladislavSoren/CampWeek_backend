@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from sqlalchemy import Result, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.auth.auth_handler import create_access_token
 from api_v1.event.crud import create_event
 from api_v1.event.schemas import EventCreate
 from core.config import settings
@@ -108,6 +109,37 @@ async def test_get_event():
         # Получаем словарь с атрибутами юзера
         async with AsyncClient(app=app, base_url=base_test_url) as ac:
             response = await ac.get(f"{prefix}/{event_id}/")
+        json_string = response.content.decode("utf-8")
+        event_response = json.loads(json_string)
+
+        # Проверки
+        assert response.status_code == 200
+        assert event_response["id"] == event_id
+
+        # Чисти базу от тестовых данных
+        await delete_event_by_name(session)
+
+
+# Проверка восстановления архивного юзера
+@pytest.mark.asyncio(scope="session")
+async def test_approve_event():
+    async with db_helper.async_session_factory() as session:
+        # Создаём архивного юзера
+        await create_test_event(session)
+
+        # Получаем id созданного юзера
+        event_id = (await get_event_by_name(session)).id
+
+        # Подготовка заголовков
+
+        # Подготовка данных
+        event_data = {"approved": True}
+        token = "Bearer " + create_access_token(user_id=1)
+        headers = {"Authorization": token}  # временно хардкорно TestUserOk
+
+        # Получаем словарь с атрибутами юзера
+        async with AsyncClient(app=app, base_url=base_test_url) as ac:
+            response = await ac.patch(f"{prefix}/{event_id}/approve/", json=event_data, headers=headers)
         json_string = response.content.decode("utf-8")
         event_response = json.loads(json_string)
 

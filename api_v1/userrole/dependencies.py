@@ -1,15 +1,12 @@
-from typing import Annotated
-
-from fastapi import Depends, HTTPException, Path, status, Request
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core.models import db_helper, UserRole
-
 from functools import wraps
-from typing import Callable, Union
+from typing import Annotated, Callable, Union
+
+from fastapi import Depends, HTTPException, Path, Request, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.auth_bearer import check_access_token
 from api_v1.userrole import crud
+from core.models import UserRole, db_helper
 
 
 async def userrole_by_id(
@@ -24,7 +21,6 @@ async def userrole_by_id(
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"UserRole {obj_id} not found!",
     )
-
 
 
 def has_role(required_roles: Union[str, list[str]]) -> Callable:
@@ -50,7 +46,7 @@ def has_role(required_roles: Union[str, list[str]]) -> Callable:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"You do not have any of the required roles to perform this action",
+                    detail="You do not have any of the required roles to perform this action",
                 )
 
         return wrapper

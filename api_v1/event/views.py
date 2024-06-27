@@ -86,21 +86,3 @@ async def approve_event(
         session=session,
         partial=True,
     )
-
-
-# @router.get("/{driver_id}/autos/", response_model=list[Auto])
-# async def get_all_driver_autos(
-#     driver_id: int,
-#     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-#     _: Driver = Depends(driver_by_id),  # check if user is exist
-# ):
-#     return await crud.get_all_driver_autos(session, driver_id)
-#
-#
-# @router.get("/{driver_id}/routes/", response_model=list[Route])
-# async def get_all_driver_routes(
-#     driver_id: int,
-#     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-#     _: Driver = Depends(driver_by_id),  # check if user is exist
-# ):
-#     return await crud.get_all_driver_routes(session, driver_id)
