@@ -12,13 +12,21 @@ from core.models import db_helper
 from main import app
 from tests.utils import (
     TestEventOk,
+    create_region_test,
     create_role_admin_test,
     create_test_event_for_all_tests,
     create_test_event_for_one_test,
     create_test_user,
+    create_userrole_admin_test,
     delete_event_by_name_for_all_tests,
     delete_event_by_name_for_one_test,
+    delete_region_test,
+    delete_role_admin_test,
+    delete_user_by_vk_id,
+    delete_userrole_admin_test,
     get_event_by_name_for_one_test,
+    get_region_by_name_test,
+    get_user_by_vk_id,
 )
 
 client = TestClient(app)
@@ -28,33 +36,45 @@ base_test_url = "http://test"
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-# @pytest.mark.asyncio
-# @pytest.mark.asyncio(scope="session")
-# @pytest.fixture(scope="session", autouse=True)
 async def async_setup_session():
     # Before all module tests
     async with db_helper.async_session_factory() as session:
-        # Создаём тестовое событие
-        await create_test_event_for_all_tests(session)
-
         # Создаём тестового юзера
         await create_test_user(session)
+
+        # Создаём регион
+        await create_region_test(session)
+
+        # Создаём тестовое событие
+        await create_test_event_for_all_tests(session)
 
         # Создаём тестовую роль admin
         await create_role_admin_test(session)
 
         # Присваиваем юзеру роль admin
+        await create_userrole_admin_test(session)
 
     yield
     # After all module tests
     async with db_helper.async_session_factory() as session:
+        await delete_userrole_admin_test(session)
+
+        await delete_role_admin_test(session)
+
         await delete_event_by_name_for_all_tests(session)
+
+        await delete_region_test(session)
+
+        await delete_user_by_vk_id(session)
 
 
 # Проверка восстановления архивного юзера
 @pytest.mark.asyncio(scope="session")
 async def test_create_event():
     async with db_helper.async_session_factory() as session:
+        user_id = (await get_user_by_vk_id(session)).id
+        region_id = (await get_region_by_name_test(session)).id
+
         event = EventCreate(
             name=TestEventOk.name_for_one_test,
             link=TestEventOk.link,
@@ -68,8 +88,8 @@ async def test_create_event():
             add_info=TestEventOk.add_info,
             notes=TestEventOk.notes,
             roles=TestEventOk.roles,
-            region_id=TestEventOk.region_id,
-            creator_id=TestEventOk.creator_id,
+            region_id=region_id,
+            creator_id=user_id,
         )
 
         # Convert the event to a dictionary and ensure datetime objects are serialized
@@ -96,7 +116,6 @@ async def test_create_event():
 @pytest.mark.asyncio(scope="session")
 async def test_get_event():
     async with db_helper.async_session_factory() as session:
-        # Создаём архивного юзера
         await create_test_event_for_one_test(session)
 
         # Получаем id созданного юзера
@@ -116,9 +135,7 @@ async def test_get_event():
         await delete_event_by_name_for_one_test(session)
 
 
-# async def create
-
-# # Проверка восстановления архивного юзера
+# # async def create
 # @pytest.mark.asyncio(scope="session")
 # async def test_approve_event():
 #     async with db_helper.async_session_factory() as session:

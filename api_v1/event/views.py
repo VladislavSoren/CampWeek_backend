@@ -71,7 +71,7 @@ async def update_event_partial(
 
 # here
 @router.patch("/{event_id}/approve/", response_model=Event)
-@has_role(["superadmin", "admin"])
+@has_role(["superadmin", "admin", "admin_test"])
 async def approve_event(
     request: Request,
     event_update: EventUpdatePartial,

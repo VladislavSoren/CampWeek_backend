@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from starlette import status
 
 from api_v1.userrole.schemas import UserRoleCreate, UserRoleUpdatePartial
-from core.models import UserRole, User, Role
+from core.models import Role, User, UserRole
 
 
 class ExistStatus:
@@ -98,7 +98,7 @@ async def delete_userrole(session: AsyncSession, userrole_id: int) -> None:
     userrole = await get_userrole(session, userrole_id)
 
     if userrole is not None:
-        session.delete(userrole)
+        await session.delete(userrole)
         await session.commit()
     else:
         raise HTTPException(
