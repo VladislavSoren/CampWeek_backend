@@ -6,6 +6,7 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
+from api_v1.auth.auth_handler import create_access_token
 from api_v1.event.schemas import EventCreate
 from core.config import settings
 from core.models import db_helper
@@ -24,6 +25,7 @@ from tests.utils import (
     delete_role_admin_test,
     delete_user_by_vk_id,
     delete_userrole_admin_test,
+    get_event_by_name_for_all_tests,
     get_event_by_name_for_one_test,
     get_region_by_name_test,
     get_user_by_vk_id,
@@ -135,32 +137,28 @@ async def test_get_event():
         await delete_event_by_name_for_one_test(session)
 
 
-# # async def create
-# @pytest.mark.asyncio(scope="session")
-# async def test_approve_event():
-#     async with db_helper.async_session_factory() as session:
-#         # Создаём архивного юзера
-#         await create_test_event(session)
-#
-#         # Получаем id созданного юзера
-#         event_id = (await get_event_by_name(session)).id
-#
-#         # Подготовка заголовков
-#
-#         # Подготовка данных
-#         event_data = {"approved": True}
-#         token = "Bearer " + create_access_token(user_id=1)
-#         headers = {"Authorization": token}  # временно хардкорно TestUserOk
-#
-#         # Получаем словарь с атрибутами юзера
-#         async with AsyncClient(app=app, base_url=base_test_url) as ac:
-#             response = await ac.patch(f"{prefix}/{event_id}/approve/", json=event_data, headers=headers)
-#         json_string = response.content.decode("utf-8")
-#         event_response = json.loads(json_string)
-#
-#         # Проверки
-#         assert response.status_code == 200
-#         assert event_response["id"] == event_id
-#
-#         # Чисти базу от тестовых данных
-#         await delete_event_by_name(session)
+# async def create
+@pytest.mark.asyncio(scope="session")
+async def test_approve_event():
+    async with db_helper.async_session_factory() as session:
+        # Получаем id созданного заранее события
+        event_id = (await get_event_by_name_for_all_tests(session)).id
+
+        # Получаем id созданного юзера
+        user_id = (await get_user_by_vk_id(session)).id
+
+        # Подготовка заголовков
+        event_data = {"approved": True}
+        token = "Bearer " + create_access_token(user_id=user_id)
+        headers = {"Authorization": token}
+
+        # Получаем словарь с атрибутами юзера
+        async with AsyncClient(app=app, base_url=base_test_url) as ac:
+            response = await ac.patch(f"{prefix}/{event_id}/approve/", json=event_data, headers=headers)
+        json_string = response.content.decode("utf-8")
+        event_response = json.loads(json_string)
+
+        # Проверки
+        assert response.status_code == 200
+        assert event_response["id"] == event_id
+        assert event_response["approved"] is True
