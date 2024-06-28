@@ -70,7 +70,7 @@ async def update_event(
     # обновляем атрибуты
     for name, value in event_update.model_dump(exclude_unset=partial).items():
         setattr(event, name, value)
-    await session.commit()
+    # await session.commit()
 
     return event
 

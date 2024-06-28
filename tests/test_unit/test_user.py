@@ -3,64 +3,22 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-from sqlalchemy import Result, delete, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.user.crud import create_user
-from api_v1.user.schemas import UserCreate
 from core.config import settings
-from core.models import User, db_helper
+from core.models import db_helper
 from main import app
-from tests.utils import TestUserOk
+from tests.utils import (
+    TestUserOk,
+    create_test_user,
+    create_test_user_archived,
+    delete_user_by_vk_id,
+    get_user_by_vk_id,
+)
 
 client = TestClient(app)
 
 prefix = settings.api_v1_prefix + settings.user_prefix
 base_test_url = "http://test"
-
-
-async def create_test_user(session: AsyncSession):
-    user = UserCreate(
-        vk_id=TestUserOk.vk_id,
-        first_name=TestUserOk.first_name,
-        last_name=TestUserOk.last_name,
-        sex=TestUserOk.sex,
-        city=TestUserOk.city,
-        bdate=TestUserOk.bdate,
-        vk_group=TestUserOk.vk_group,
-        archived=TestUserOk.archived,
-    )
-
-    await create_user(session, user)
-    await session.commit()
-
-
-async def create_test_user_archived(session: AsyncSession):
-    user = UserCreate(
-        vk_id=TestUserOk.vk_id,
-        first_name=TestUserOk.first_name,
-        last_name=TestUserOk.last_name,
-        sex=TestUserOk.sex,
-        city=TestUserOk.city,
-        bdate=TestUserOk.bdate,
-        vk_group=TestUserOk.vk_group,
-        archived=True,
-    )
-
-    await create_user(session, user)
-    await session.commit()
-
-
-async def delete_user_by_vk_id(session: AsyncSession):
-    stmt = delete(User).where(User.vk_id == TestUserOk.vk_id)
-    await session.execute(stmt)
-    await session.commit()
-
-
-async def get_user_by_vk_id(session: AsyncSession):
-    stmt = select(User).where(User.vk_id == TestUserOk.vk_id)
-    result: Result = await session.execute(stmt)
-    return result.scalars().one()
 
 
 @pytest.mark.asyncio(scope="session")
