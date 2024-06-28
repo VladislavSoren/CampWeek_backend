@@ -17,3 +17,5 @@ exclude =
     sup_script.py,
     config.py,
     requirements.txt,
+per-file-ignores =
+    test_event.py: F401

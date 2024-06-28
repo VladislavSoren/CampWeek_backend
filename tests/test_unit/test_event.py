@@ -2,7 +2,6 @@ import json
 from datetime import datetime
 
 import pytest
-import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
@@ -11,20 +10,11 @@ from api_v1.event.schemas import EventCreate
 from core.config import settings
 from core.models import db_helper
 from main import app
+from tests.test_unit.test_fixtures import async_setup_session
 from tests.utils import (
     TestEventOk,
-    create_region_test,
-    create_role_admin_test,
-    create_test_event_for_all_tests,
     create_test_event_for_one_test,
-    create_test_user,
-    create_userrole_admin_test,
-    delete_event_by_name_for_all_tests,
     delete_event_by_name_for_one_test,
-    delete_region_test,
-    delete_role_admin_test,
-    delete_user_by_vk_id,
-    delete_userrole_admin_test,
     get_event_by_name_for_all_tests,
     get_event_by_name_for_one_test,
     get_region_by_name_test,
@@ -35,39 +25,6 @@ client = TestClient(app)
 
 prefix = settings.api_v1_prefix + settings.event_prefix
 base_test_url = "http://test"
-
-
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def async_setup_session():
-    # Before all module tests
-    async with db_helper.async_session_factory() as session:
-        # Создаём тестового юзера
-        await create_test_user(session)
-
-        # Создаём регион
-        await create_region_test(session)
-
-        # Создаём тестовое событие
-        await create_test_event_for_all_tests(session)
-
-        # Создаём тестовую роль admin
-        await create_role_admin_test(session)
-
-        # Присваиваем юзеру роль admin
-        await create_userrole_admin_test(session)
-
-    yield
-    # After all module tests
-    async with db_helper.async_session_factory() as session:
-        await delete_userrole_admin_test(session)
-
-        await delete_role_admin_test(session)
-
-        await delete_event_by_name_for_all_tests(session)
-
-        await delete_region_test(session)
-
-        await delete_user_by_vk_id(session)
 
 
 # Проверка восстановления архивного юзера
@@ -155,10 +112,11 @@ async def test_approve_event():
         # Получаем словарь с атрибутами юзера
         async with AsyncClient(app=app, base_url=base_test_url) as ac:
             response = await ac.patch(f"{prefix}/{event_id}/approve/", json=event_data, headers=headers)
-        json_string = response.content.decode("utf-8")
-        event_response = json.loads(json_string)
+        # json_string = response.content.decode("utf-8")
+        # event_response = json.loads(json_string)
+        event_updated = await get_event_by_name_for_all_tests(session)
 
         # Проверки
         assert response.status_code == 200
-        assert event_response["id"] == event_id
-        assert event_response["approved"] is True
+        assert event_updated.id == event_id
+        assert event_updated.approved is True
